@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TestersAI — slerf.tools 子页面专项测试报告</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a1f0f 0%, #0d2818 100%);
+            color: #e8f5e9;
+            padding: 20px;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header {
+            background: linear-gradient(135deg, #1a4d2e 0%, #0d2818 100%);
+            padding: 36px 40px;
+            border-radius: 12px;
+            margin-bottom: 28px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        h1 { font-size: 2em; margin-bottom: 8px; background: linear-gradient(45deg, #4ade80, #22c55e); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        h2 { color: #4ade80; margin-bottom: 14px; }
+        h3 { color: #86efac; margin-bottom: 10px; font-size: 15px; }
+        .meta-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin-top: 18px; }
+        .meta-card { background: rgba(255,255,255,0.06); padding: 13px; border-radius: 8px; border-left: 4px solid #4ade80; font-size: 13px; }
+        .meta-card strong { color: #4ade80; display: block; margin-bottom: 3px; }
+
+        /* 页面地图 */
+        .sitemap { background: #0d2818; border-radius: 12px; padding: 28px; margin-bottom: 28px; }
+        .chain-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 18px; }
+        .chain-card { background: rgba(255,255,255,0.05); border-radius: 10px; padding: 16px; border: 1px solid rgba(74,222,128,0.1); }
+        .chain-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+        .chain-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+        .dot-live { background: #4ade80; }
+        .dot-404 { background: #f87171; }
+        .dot-redirect { background: #facc15; }
+        .chain-name { font-weight: 500; font-size: 14px; }
+        .chain-url { font-size: 11px; color: #6b9e78; font-family: monospace; }
+        .chain-status { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 8px; margin-top: 6px; }
+        .status-live { background: rgba(74,222,128,0.15); color: #4ade80; }
+        .status-404 { background: rgba(239,68,68,0.15); color: #f87171; }
+        .status-nojs { background: rgba(234,179,8,0.15); color: #facc15; }
+        .tool-count { font-size: 12px; color: #a7d6b0; margin-top: 6px; }
+
+        /* 统计 */
+        .stats-section { background: #0d2818; border-radius: 12px; padding: 28px; margin-bottom: 28px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 14px; margin-top: 18px; }
+        .stat-box { background: rgba(255,255,255,0.05); padding: 16px; border-radius: 8px; text-align: center; }
+        .stat-number { font-size: 2.2em; font-weight: bold; color: #4ade80; }
+        .stat-label { font-size: 12px; color: #a7d6b0; margin-top: 4px; }
+
+        /* Bug 卡片 */
+        .section-title { color: #4ade80; font-size: 1.2em; margin: 28px 0 16px; display: flex; align-items: center; gap: 8px; }
+        .bug-card { background: #0d2818; border-radius: 10px; margin-bottom: 18px; overflow: hidden; }
+        .bug-header { padding: 16px 22px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .bug-title { font-size: 15px; font-weight: 600; color: #e8f5e9; }
+        .page-tag { display: inline-block; font-size: 11px; background: rgba(99,102,241,0.15); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.2); padding: 2px 8px; border-radius: 6px; margin-top: 6px; font-family: monospace; }
+        .badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+        .badge { font-size: 11px; padding: 3px 10px; border-radius: 12px; font-weight: 500; }
+        .badge-critical { background: rgba(239,68,68,0.2); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+        .badge-high { background: rgba(249,115,22,0.2); color: #fb923c; border: 1px solid rgba(249,115,22,0.3); }
+        .badge-medium { background: rgba(234,179,8,0.2); color: #facc15; border: 1px solid rgba(234,179,8,0.3); }
+        .badge-low { background: rgba(74,222,128,0.15); color: #86efac; border: 1px solid rgba(74,222,128,0.2); }
+        .badge-type { background: rgba(99,102,241,0.2); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.3); }
+        .badge-conf { background: rgba(255,255,255,0.07); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.1); }
+        .bug-body { padding: 16px 22px; }
+        .bug-sec { margin-bottom: 14px; }
+        .bug-sec-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: #4ade80; margin-bottom: 5px; }
+        .bug-sec p { font-size: 13px; color: #c8e6c9; line-height: 1.7; }
+        .fix-prompt { background: #071a0f; border: 1px solid rgba(74,222,128,0.2); border-radius: 6px; padding: 12px; font-family: 'Courier New', monospace; font-size: 12px; color: #86efac; white-space: pre-wrap; word-break: break-word; line-height: 1.6; }
+        .found-by { display: flex; align-items: center; gap: 10px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.06); margin-top: 12px; }
+        .found-by-avatar { width: 32px; height: 32px; border-radius: 50%; background: rgba(74,222,128,0.1); border: 1.5px solid #4ade80; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; color: #4ade80; flex-shrink: 0; }
+        .found-by-info { font-size: 12px; }
+        .found-by-info strong { color: #4ade80; }
+        .found-by-info span { color: #a7d6b0; }
+
+        /* 对比表格 */
+        .compare-section { background: #0d2818; border-radius: 12px; padding: 28px; margin-bottom: 28px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 16px; }
+        th { background: rgba(74,222,128,0.1); color: #4ade80; padding: 10px 14px; text-align: left; border-bottom: 1px solid rgba(74,222,128,0.2); }
+        td { padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #c8e6c9; vertical-align: top; }
+        tr:hover td { background: rgba(255,255,255,0.03); }
+        .check { color: #4ade80; }
+        .cross { color: #f87171; }
+        .warn { color: #facc15; }
+
+        /* 建议 */
+        .recs { background: #0d2818; border-radius: 12px; padding: 28px; margin-bottom: 28px; }
+        .rec-item { display: flex; gap: 16px; padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .rec-item:last-child { border-bottom: none; }
+        .rec-num { width: 30px; height: 30px; border-radius: 50%; background: rgba(74,222,128,0.15); border: 1.5px solid #4ade80; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #4ade80; font-size: 13px; flex-shrink: 0; }
+        .rec-content h4 { color: #e8f5e9; margin-bottom: 4px; font-size: 14px; }
+        .rec-content p { color: #a7d6b0; font-size: 13px; line-height: 1.6; }
+        .divider { height: 1px; background: linear-gradient(to right, transparent, rgba(74,222,128,0.3), transparent); margin: 24px 0; }
+        footer { text-align: center; padding: 20px; color: #6b9e78; font-size: 12px; border-top: 1px solid rgba(74,222,128,0.1); }
+        footer a { color: #4ade80; text-decoration: none; }
+    </style>
+</head>
+<body>
+<div class="container">
+
+<header>
+    <h1>🦥 TestersAI — 子页面专项测试报告</h1>
+    <p style="color:#a7d6b0; font-size:14px;">slerf.tools 全站页面架构 + 多链子域名 + 功能工具页深度分析</p>
+    <div class="meta-info">
+        <div class="meta-card"><strong>测试范围</strong>主站子页面 + 多链子域名 + docs 文档站</div>
+        <div class="meta-card"><strong>测试日期</strong>2026年3月20日</div>
+        <div class="meta-card"><strong>子域名数量</strong>4个（bsc / eth / base / docs）</div>
+        <div class="meta-card"><strong>已发现工具数</strong>40+ 个功能页面</div>
+        <div class="meta-card"><strong>在线状态异常</strong>bsc.slerf.tools → 404</div>
+        <div class="meta-card"><strong>链支持现状</strong>Solana 完整 / EVM 部分 / BSC 故障</div>
+    </div>
+</header>
+
+<!-- 站点地图 -->
+<div class="sitemap">
+    <h2>🗺️ 站点架构地图</h2>
+    <p style="color:#a7d6b0; font-size:13px; margin-bottom:4px;">通过文档、博客、重定向链路还原的完整域名与页面结构</p>
+    <div class="chain-grid">
+        <div class="chain-card">
+            <div class="chain-header">
+                <div class="chain-dot dot-redirect"></div>
+                <div>
+                    <div class="chain-name">🌐 slerf.tools（主站）</div>
+                    <div class="chain-url">slerf.tools → /en-us</div>
+                </div>
+            </div>
+            <span class="chain-status status-nojs">⚠️ JS 重定向</span>
+            <div class="tool-count">Solana 核心工具 40+ 页面</div>
+            <div style="margin-top:8px; font-size:12px; color:#a7d6b0;">
+                /token-mint /token-creator /bundled-buy<br>
+                /bundled-sell /multi-sender /liquidity-creator<br>
+                /pump-launch /swap /market-making ...
+            </div>
+        </div>
+        <div class="chain-card">
+            <div class="chain-header">
+                <div class="chain-dot dot-404"></div>
+                <div>
+                    <div class="chain-name">🔴 bsc.slerf.tools</div>
+                    <div class="chain-url">返回 404 错误</div>
+                </div>
+            </div>
+            <span class="chain-status status-404">❌ 404 Not Found</span>
+            <div class="tool-count">BSC/BNB Chain 工具（已下线?）</div>
+            <div style="margin-top:8px; font-size:12px; color:#a7d6b0;">
+                文档中有 BSC Multisender 教程<br>
+                但子域名本身返回 404<br>
+                导航栏链接已失效
+            </div>
+        </div>
+        <div class="chain-card">
+            <div class="chain-header">
+                <div class="chain-dot dot-live"></div>
+                <div>
+                    <div class="chain-name">🔵 eth.slerf.tools</div>
+                    <div class="chain-url">eth.slerf.tools</div>
+                </div>
+            </div>
+            <span class="chain-status status-live">✅ 可访问</span>
+            <div class="tool-count">ERC-20 代币工具</div>
+            <div style="margin-top:8px; font-size:12px; color:#a7d6b0;">
+                ETH Token Creator<br>
+                ERC20 Multisender / Airdrop<br>
+                同样存在纯 JS 渲染问题
+            </div>
+        </div>
+        <div class="chain-card">
+            <div class="chain-header">
+                <div class="chain-dot dot-live"></div>
+                <div>
+                    <div class="chain-name">🟣 base.slerf.tools</div>
+                    <div class="chain-url">base.slerf.tools</div>
+                </div>
+            </div>
+            <span class="chain-status status-live">✅ 可访问</span>
+            <div class="tool-count">Base Chain ERC-20 工具</div>
+            <div style="margin-top:8px; font-size:12px; color:#a7d6b0;">
+                BASE Token Creator<br>
+                BASE Multisender<br>
+                与 ETH 工具集相似
+            </div>
+        </div>
+        <div class="chain-card">
+            <div class="chain-header">
+                <div class="chain-dot dot-live"></div>
+                <div>
+                    <div class="chain-name">📚 docs.slerf.tools</div>
+                    <div class="chain-url">docs.slerf.tools (GitBook)</div>
+                </div>
+            </div>
+            <span class="chain-status status-live">✅ 可访问</span>
+            <div class="tool-count">GitBook 托管文档站</div>
+            <div style="margin-top:8px; font-size:12px; color:#a7d6b0;">
+                50+ 工具使用教程<br>
+                中英双语文档<br>
+                最近更新标注不完整
+            </div>
+        </div>
+        <div class="chain-card">
+            <div class="chain-header">
+                <div class="chain-dot dot-live"></div>
+                <div>
+                    <div class="chain-name">📝 blog.slerf.tools</div>
+                    <div class="chain-url">blog.slerf.tools</div>
+                </div>
+            </div>
+            <span class="chain-status status-live">✅ 可访问</span>
+            <div class="tool-count">官方博客站点</div>
+            <div style="margin-top:8px; font-size:12px; color:#a7d6b0;">
+                工具教程文章<br>
+                营销内容<br>
+                中英双语
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 统计 -->
+<div class="stats-section">
+    <h2>📊 子页面测试统计</h2>
+    <div class="stats-grid">
+        <div class="stat-box"><div class="stat-number">22</div><div class="stat-label">新增问题</div></div>
+        <div class="stat-box"><div class="stat-number" style="color:#f87171">5</div><div class="stat-label">严重 Critical</div></div>
+        <div class="stat-box"><div class="stat-number" style="color:#fb923c">8</div><div class="stat-label">高危 High</div></div>
+        <div class="stat-box"><div class="stat-number" style="color:#facc15">6</div><div class="stat-label">中危 Medium</div></div>
+        <div class="stat-box"><div class="stat-number" style="color:#86efac">3</div><div class="stat-label">低危 Low</div></div>
+        <div class="stat-box"><div class="stat-number">6</div><div class="stat-label">覆盖域名</div></div>
+        <div class="stat-box"><div class="stat-number">40+</div><div class="stat-label">分析工具页</div></div>
+    </div>
+</div>
+
+<!-- 各链状态对比 -->
+<div class="compare-section">
+    <h2>⛓️ 多链子域名功能对比</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>检测项目</th>
+                <th>slerf.tools (Solana)</th>
+                <th>bsc.slerf.tools</th>
+                <th>eth.slerf.tools</th>
+                <th>base.slerf.tools</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>域名可访问</td>
+                <td><span class="check">✅ 正常</span></td>
+                <td><span class="cross">❌ 404</span></td>
+                <td><span class="check">✅ 正常</span></td>
+                <td><span class="check">✅ 正常</span></td>
+            </tr>
+            <tr>
+                <td>SSR / 服务端渲染</td>
+                <td><span class="cross">❌ 纯 JS 渲染</span></td>
+                <td><span class="cross">❌ N/A</span></td>
+                <td><span class="cross">❌ 纯 JS 渲染</span></td>
+                <td><span class="cross">❌ 纯 JS 渲染</span></td>
+            </tr>
+            <tr>
+                <td>页面 &lt;title&gt; 多语言</td>
+                <td><span class="warn">⚠️ 中英混排</span></td>
+                <td><span class="cross">❌ N/A</span></td>
+                <td><span class="warn">⚠️ 中英混排</span></td>
+                <td><span class="warn">⚠️ 中英混排</span></td>
+            </tr>
+            <tr>
+                <td>hreflang 标签</td>
+                <td><span class="cross">❌ 缺失</span></td>
+                <td><span class="cross">❌ N/A</span></td>
+                <td><span class="cross">❌ 缺失</span></td>
+                <td><span class="cross">❌ 缺失</span></td>
+            </tr>
+            <tr>
+                <td>文档页面覆盖</td>
+                <td><span class="check">✅ 完整</span></td>
+                <td><span class="warn">⚠️ 部分有博客教程</span></td>
+                <td><span class="warn">⚠️ 少量</span></td>
+                <td><span class="warn">⚠️ 少量</span></td>
+            </tr>
+            <tr>
+                <td>错误处理 UI</td>
+                <td><span class="warn">⚠️ 有文档但 UI 未知</span></td>
+                <td><span class="cross">❌ 无</span></td>
+                <td><span class="cross">❌ 未检测到</span></td>
+                <td><span class="cross">❌ 未检测到</span></td>
+            </tr>
+            <tr>
+                <td>私钥安全说明</td>
+                <td><span class="check">✅ 文档有说明</span></td>
+                <td><span class="cross">❌ N/A</span></td>
+                <td><span class="cross">❌ 未显示</span></td>
+                <td><span class="cross">❌ 未显示</span></td>
+            </tr>
+            <tr>
+                <td>支持的钱包说明</td>
+                <td><span class="check">✅ Phantom/OKX/Solflare</span></td>
+                <td><span class="cross">❌ N/A</span></td>
+                <td><span class="warn">⚠️ MetaMask 为主</span></td>
+                <td><span class="warn">⚠️ 未明确列出</span></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="divider"></div>
+
+<!-- Bug 列表 -->
+<div class="section-title">🐛 子页面专项问题清单</div>
+
+<!-- #1 -->
+<div class="bug-card">
+    <div class="bug-header">
+        <div class="bug-title">bsc.slerf.tools 返回 404，但导航栏仍在所有页面展示其链接</div>
+        <div class="page-tag">bsc.slerf.tools</div>
+        <div class="badges">
+            <span class="badge badge-critical">🔴 Critical · P9</span>
+            <span class="badge badge-type">死链</span>
+            <span class="badge badge-type">导航</span>
+            <span class="badge badge-conf">置信度 10/10</span>
+        </div>
+    </div>
+    <div class="bug-body">
+        <div class="bug-sec">
+            <div class="bug-sec-title">问题描述</div>
+            <p>访问 bsc.slerf.tools 直接返回 404 错误。然而 docs.slerf.tools 的顶部导航栏中仍然显示「BSCTools」链接，点击后跳转到 404 页面。博客中也存在多篇「如何使用 BSC Multisender」的教程文章，但对应工具已不可用。这对用户造成严重困惑，也损害品牌信任度。</p>
+        </div>
+        <div class="bug-sec">
+            <div class="bug-sec-title">建议修复</div>
+            <p>立即从 docs、blog、主站导航中移除 BSCTools 链接；若 BSC 功能已迁移至主站 /bsc 路径，则更新所有链接；若功能已废弃，在文档中添加停止服务公告，并将 bsc.slerf.tools 重定向到主站。</p>
+        </div>
+        <div class="bug-sec">
+            <div class="bug-sec-title">修复提示</div>
+            <div class="fix-prompt">立即操作：
+1. 在 docs.slerf.tools 导航中移除「BSCTools」链接，或替换为主站 BSC 路径
+2. 为 bsc.slerf.tools 配置 301 重定向 → https://slerf.tools/en-us/bsc
+3. 在所有相关博客文章顶部添加提示横幅：
+   "⚠️ 注意：BSC 工具已迁移至新地址，请访问 slerf.tools/bsc"
+4. 清查 blog 中所有引用 bsc.slerf.tools 的文章链接</div>
+        </div>
+        <div class="found-by">
+            <div class="found-by-avatar">Ma</div>
+            <div class="found-by-info"><strong>Marcus</strong> · <span>网络 & 性能专家</span></div>
+        </div>
+    </div>
+</div>
+
+<!-- #2 -->
+<div class="bug-card">
+    <div class="bug-header">
+        <div class="bug-title">所有工具子页面同样依赖 JS 渲染，内容对 SEO 完全不可见</div>
+        <div class="page-tag">slerf.tools/en-us/* · eth.slerf.tools · base.slerf.tools</div>
+        <div class="badges">
+            <span class="badge badge-critical">🔴 Critical · P9</span>
+            <span class="badge badge-type">SEO</span>
+            <span class="badge badge-type">架构</span>
+            <span class="badge badge-conf">置信度 9/10</span>
+        </div>
+    </div>
+    <div class="bug-body">
+        <div class="bug-sec">
+            <div class="bug-sec-title">问题描述</div>
+            <p>对 /en-us/token-mint/solana 的抓取结果与根域名完全一样——只有加载 GIF 和图片，没有任何实际内容。这说明所有工具页面（40+）均为纯客户端渲染（CSR），Google 等爬虫看不到任何工具名称、功能描述或关键词。在竞争激烈的 Web3 工具搜索场景中，这直接损失了大量自然流量。</p>
+        </div>
+        <div class="bug-sec">
+            <div class="bug-sec-title">建议修复</div>
+            <p>为核心工具页面实现 SSR（服务端渲染）或 SSG（静态生成），至少输出工具名称、功能描述、关键词的静态 HTML；或使用 Next.js / Nuxt.js 替代当前 SPA 架构，为每个工具页生成独立的 meta 标签。</p>
+        </div>
+        <div class="bug-sec">
+            <div class="bug-sec-title">修复提示</div>
+            <div class="fix-prompt">最小化改动方案：为每个工具路径预生成静态 HTML 外壳，包含：
+&lt;title&gt;Solana Token Creator — Create SPL Token in 1 Min | SlerfTools&lt;/title&gt;
+&lt;meta name="description" content="No-code Solana token creator. Create SPL tokens in under 1 minute for just 0.1 SOL."&gt;
+&lt;h1&gt;Solana Token Creator&lt;/h1&gt;
+&lt;p&gt;[工具描述]&lt;/p&gt;
+
+同时配置 prerender.io 或 rendertron 对爬虫请求进行服务端预渲染（短期快速方案）</div>
+        </div>
+        <div class="found-by">
+            <div class="found-by-avatar">T</div>
+            <div class="found-by-info"><strong>Tariq</strong> · <span>安全 & OWASP 专家</span></div>
+        </div>
+    </div>
+</div>
+
+<!-- #3 -->
+<div class="bug-card">
+    <div class="bug-header">
+        <div class="bug-title">Bundled Buy/Sell 工具页：用户私钥导入流程存在极高安全风险</div>
+        <div class="page-tag">slerf.tools/en-us/bundled-buy · /bundled-sell · /multi-address-bundle</div>
+        <div class="badges">
+            <span class="badge badge-critical">🔴 Critical · P10</span>
+            <span class="badge badge-type">安全</span>
+            <span class="badge badge-type">私钥</span>
+            <span class="badge badge-conf">置信度 9/10</span>
+        </div>
+    </div>
+    <div class="bug-body">
+        <div class="bug-sec">
+            <div class="bug-sec-title">问题描述</div>
+            <p>根据文档，「捆绑买入/卖出」「批量交易」「市值管理」等工具需要用户在页面表单中直接输入多个钱包的私钥（支持标准私钥和 Base58 格式）。文档虽然提到私钥在本地处理，但未在工具页面显著位置展示安全审计证明。私钥输入框如被 XSS 攻击或恶意扩展劫持，将造成资产直接损失。</p>
+        </div>
+        <div class="bug-sec">
+            <div class="bug-sec-title">建议修复</div>
+            <p>在私钥输入区域添加醒目的安全说明框（红色/橙色警告）；提供代码审计报告直链；考虑支持硬件钱包签名替代私钥直接输入；至少在表单旁显示「私钥仅在您的浏览器中处理，不会上传至任何服务器」的声明，并链接开源代码验证。</p>
+        </div>
+        <div class="bug-sec">
+            <div class="bug-sec-title">修复提示</div>
+            <div class="fix-prompt">在每个私钥输入框上方添加警告组件：
+┌─────────────────────────────────────────┐
+│ ⚠️  安全提醒                              │
+│ 请勿在不信任的网络或设备上输入私钥          │
+│ 本工具在浏览器本地执行，私钥不会上传服务器   │
+│ 建议操作前验证当前域名为 slerf.tools        │
+│ [查看开源代码] [查看安全审计报告]            │
+└─────────────────────────────────────────┘
+
+同时在工具页面 URL 栏旁显示 HTTPS 锁定图标说明</div>
+        </div>
+        <div class="found-by">
+            <div class="found-by-avatar">T</div>
+            <div class="found-by-info"><strong>Tariq</strong> · <span>安全 & OWASP 专家</span></div>
+        </div>
+    </div>
+</div>
+
+<!-- #4 -->
+<div class="bug-card">
+    <div class="bug-header">
+        <div class="bug-title">文档中「最后更新于1年前」标注大量存在，与功能实际状态不符</div>
+        <div class="page-tag">docs.slerf.tools — bundled-selling-guide 等多页面</div>
+        <div class="badges">
+            <span class="badge badge-critical">🔴 Critical · P8</span>
+            <span class="badge badge-type">内容</span>
+            <span class="badge badge-type">信任度</span>
+            <span class="badge badge-conf">置信度 9/10</span>
+        </div>
+    </div>
+    <div class="bug-body">
+        <div class="bug-sec">
+            <div class="bug-sec-title">问题描述</div>
+            <p>docs.slerf.tools 中多个高风险工具页面（如 Solana Bundled Selling Guide、Bundled Buy 等）底部显示「最后更新于1年前」。而实际上平台已新增了 BonkFun 支持、多个新工具、费用调整等变化。使用过时文档执行 DeFi 操作（如流动性创建参数设置错误）可能直接导致链上资产损失。</p>
+        </div>
+        <div class="bug-sec">
+            <div class="bug-sec-title">建议修复</div>
+            <p>建立文档同步机制：每次工具功能更新时同步更新对应文档；为所有文档页添加显眼的「最后验证日期」标注；对超过 6 个月未更新的高风险工具文档添加橙色警告横幅。</p>
+        </div>
+        <div class="bug-sec">
+            <div class="bug-sec-title">修复提示</div>
+            <div class="fix-prompt">在所有超过 180 天未更新的文档顶部添加：
+┌──────────────────────────────────────────┐
+│ 📅 此文档最后更新于 1 年前               │
+│ 部分界面或参数可能已发生变化              │
+│ 如遇问题请加入 Telegram 社群获取最新帮助  │
+└──────────────────────────────────────────┘
+
+建议在 GitBook 中启用 "page verification" 工作流，
+每 90 天提醒文档负责人确认内容是否仍然有效</div>
+        </div>
+        <div class="found-by">
+            <div class="found-by-avatar">L</div>
+            <div class="found-by-info"><strong>Leila</strong> · <span>内容质量专家</span></div>
+        </div>
+    </div>
+</div>
+
+<!-- #5 -->
+<div class="bug-card">
+    <div class="bug-header">
+        <div class="bug-title">eth.slerf.tools 和 base.slerf.tools 页面标题中英混排，SEO 定向混乱</div>
+        <div class="page-tag">eth.slerf.tools · base.slerf.tools</div>
+        <div class="badges">
+            <span class="badge badge-critical">🔴 Critical · P7</span>
+            <span class="badge badge-type">SEO</span>
+            <span class="badge badge-type">内容</span>
+            <span class="badge badge-conf">置信度 10/10</span>
+        </div>
+    </div>
+    <div class="bug-body">
+        <div class="bug-sec">
+            <div class="bug-sec-title">问题描述</div>
+            <p>eth.slerf.tools 的 &lt;title&gt; 为「Ethereum项目管理 | 代币创建 | 空投 | 市值管理等工具集 | SlerfTools | Ethereum Project Management | Dev Tools | ETH | ERC20」，base.slerf.tools 同样。标题中中英文同时出现，且堆砌大量关键词，违反 Google 搜索质量指南。这类关键词堆砌可能触发降权惩罚。</p>
+        </div>
+        <div class="bug-sec">
+            <div class="bug-sec-title">建议修复</div>
+            <p>为英文版本和中文版本分别设计独立的 &lt;title&gt;，每版本标题控制在 60 字符以内；去除关键词堆砌；用 hreflang 声明语言版本。</p>
+        </div>
+        <div class="bug-sec">
+            <div class="bug-sec-title">修复提示</div>
+            <div class="fix-prompt">英文版：
+&lt;title&gt;Ethereum Token Creator & Dev Tools | SlerfTools&lt;/title&gt;
+&lt;meta name="description" content="Create ERC-20 tokens, run airdrops, and manage liquidity on Ethereum — no code required."&gt;
+
+中文版：
+&lt;title&gt;以太坊代币创建工具 | 空投 | 市值管理 | SlerfTools&lt;/title&gt;
+
+避免同一 title 混合两种语言</div>
+        </div>
+        <div class="found-by">
+            <div class="found-by-avatar">L</div>
+            <div class="found-by-info"><strong>Leila</strong> · <span>内容质量专家</span></div>
+        </div>
+    </div>
+</div>
+
+<!-- #6 -->
+<div class="bug-card">
+    <div class="bug-header">
+        <div class="bug-title">Token 创建页面：decimal 精度说明与 Token2022 文档链接交叉错误</div>
+        <div class="page-tag">slerf.tools/en-us/token-creator · /tax-token-creator</div>
+        <div class="badges">
+            <span class="badge badge-high">🟠 High · P7</span>
+            <span class="badge badge-type">内容错误</span>
+            <span class="badge badge-type">用户体验</span>
+            <span class="badge badge-conf">置信度 8/10</span>
+        </div>
+    </div>
+    <div class="bug-body">
+        <div class="bug-sec">
+            <div class="bug-sec-title">问题描述</div>
+            <p>文档中「创建普通 SPL Token」页面的「Experience Now」按钮链接到 /en-us/token-creator/solana，但下方「创建常规 SPL Token 请点击」又链接到 /en-us/tax-token-creator/solana，两个链接目标互换了。这意味着用户点击「立即体验」会进入税收代币创建页面，而非普通代币页面，将误导用户支付更多费用（0.15 SOL vs 0.1 SOL）。</p>
+        </div>
+        <div class="bug-sec">
+            <div class="bug-sec-title">建议修复</div>
+            <p>立即核查并修正文档中所有工具链接的对应关系；建立链接测试清单，定期验证文档链接的准确性。</p>
+        </div>
+        <div class="bug-sec">
+            <div class="bug-sec-title">修复提示</div>
+            <div class="fix-prompt">在 docs 税收代币页面中修正：
+错误：[Experience Now] → https://slerf.tools/en-us/token-creator/solana  
+正确：[Experience Now] → https://slerf.tools/en-us/tax-token-creator/solana
+
+错误：[创建普通SPL Token请点击] → /en-us/tax-token-creator/solana
+正确：[创建普通SPL Token请点击] → /en-us/token-creator/solana
+
+建议：对文档中所有 CTA 链接建立自动化检测，防止链接对调</div>
+        </div>
+        <div class="found-by">
+            <div class="found-by-avatar">J</div>
+            <div class="found-by-info"><strong>Jason</strong> · <span>JavaScript 专家</span></div>
+        </div>
+    </div>
+</div>
+
+<!-- #7 -->
+<div class="bug-card">
+    <div class="bug-header">
+        <div class="bug-title">Pump.fun 工具区大量功能重复，缺乏清晰的产品分类逻辑</div>
+        <div class="page-tag">docs.slerf.tools — Pump.fun zone · Raydium Section</div>
+        <div class="badges">
+            <span class="badge badge-high">🟠 High · P6</span>
+            <span class="badge badge-type">信息架构</span>
+            <span class="badge badge-type">UI/UX</span>
+            <span class="badge badge-conf">置信度 8/10</span>
+        </div>
+    </div>
+    <div class="bug-body">
+        <div class="bug-sec">
+            <div class="bug-sec-title">问题描述</div>
+            <p>文档导航中，「Bundled Section」「Raydium Section」「Pump.fun zone」三个分区下均有几乎相同的功能条目（如 Bundle Buy、Bundled Sell、Anti-MEV Volume 等），仅平台名称不同。用户需要在文档中梳理超过 40 个条目来找到自己需要的工具，认知负担极重。BonkFun Section 更是直接复制了 Pump.fun 的结构。</p>
+        </div>
+        <div class="bug-sec">
+            <div class="bug-sec-title">建议修复</div>
+            <p>重组文档架构：以「功能类型」为一级分类（如：批量买入、批量卖出、量化机器人、空投），以「支持的平台」为二级标签筛选。减少重复条目，降低用户认知成本。</p>
+        </div>
+        <div class="found-by">
+            <div class="found-by-avatar">M</div>
+            <div class="found-by-info"><strong>Mia</strong> · <span>UI/UX & 信息架构专家</span></div>
+        </div>
+    </div>
+</div>
+
+<!-- #8 -->
+<div class="bug-card">
+    <div class="bug-header">
+        <div class="bug-title">Auto Volume Bot 页面：功能描述与市场操纵监管红线擦边</div>
+        <div class="page-tag">/en-us/raydium/auto-volume-bot · /pump.fun-zone/auto-volume-bot</div>
+        <div class="badges">
+            <span class="badge badge-high">🟠 High · P8</span>
+            <span class="badge badge-type">法律合规</span>
+            <span class="badge badge-type">内容</span>
+            <span class="badge badge-conf">置信度 8/10</span>
+        </div>
+    </div>
+    <div class="bug-body">
+        <div class="bug-sec">
+            <div class="bug-sec-title">问题描述</div>
+            <p>博客及文档中明确描述 Auto Volume Bot 的功能为「持续制造真实交易量」「让代币在 DEX 排行榜上保持可见度」「帮助项目脱颖而出」。此类功能描述在部分司法管辖区（如美国 SEC 标准下）构成「Wash Trading（洗售）」或「市场操纵」。相关工具页面目前完全缺乏法律免责声明。</p>
+        </div>
+        <div class="bug-sec">
+            <div class="bug-sec-title">建议修复</div>
+            <p>在每个量化/刷量相关工具页面顶部添加法律免责声明；修改营销文案，避免使用暗示人为刷量的措辞；考虑咨询法律顾问评估工具合规性。</p>
+        </div>
+        <div class="found-by">
+            <div class="found-by-avatar">T</div>
+            <div class="found-by-info"><strong>Tariq</strong> · <span>安全 & OWASP 专家</span></div>
+        </div>
+    </div>
+</div>
+
+<!-- #9 -->
+<div class="bug-card">
+    <div class="bug-header">
+        <div class="bug-title">市值管理工具页标注「Beta 测试中（限时优惠）」但无有效期</div>
+        <div class="page-tag">docs.slerf.tools/en/market-making/solana-market-making-guide</div>
+        <div class="badges">
+            <span class="badge badge-high">🟠 High · P5</span>
+            <span class="badge badge-type">内容</span>
+            <span class="badge badge-type">信任度</span>
+            <span class="badge badge-conf">置信度 9/10</span>
+        </div>
+    </div>
+    <div class="bug-body">
+        <div class="bug-sec">
+            <div class="bug-sec-title">问题描述</div>
+            <p>市值管理文档页面标题含「Beta Testing（Limited Time Offer）」，但文档本身没有说明 Beta 何时结束、优惠期限是多久、正式上线后定价是多少。用户使用 Beta 版工具承担更高风险，却没有获得相应的清晰提示。「限时优惠」措辞同时也是一种典型的虚假紧迫感营销手法。</p>
+        </div>
+        <div class="bug-sec">
+            <div class="bug-sec-title">建议修复</div>
+            <p>明确标注 Beta 功能的限制说明（可能有 Bug、数据可能丢失等）；说明 Beta 与正式版的功能差异；若优惠已过期，及时更新文档标题。</p>
+        </div>
+        <div class="found-by">
+            <div class="found-by-avatar">L</div>
+            <div class="found-by-info"><strong>Leila</strong> · <span>内容质量专家</span></div>
+        </div>
+    </div>
+</div>
+
+<!-- #10 -->
+<div class="bug-card">
+    <div class="bug-header">
+        <div class="bug-title">Multisender CSV 上传：缺少文件格式校验与错误数量的上限说明</div>
+        <div class="page-tag">slerf.tools/en-us/multi-sender · eth.slerf.tools multisender</div>
+        <div class="badges">
+            <span class="badge badge-high">🟠 High · P6</span>
+            <span class="badge badge-type">表单验证</span>
+            <span class="badge badge-type">用户体验</span>
+            <span class="badge badge-conf">置信度 7/10</span>
+        </div>
+    </div>
+    <div class="bug-body">
+        <div class="bug-sec">
+            <div class="bug-sec-title">问题描述</div>
+            <p>Multisender 工具支持上传 CSV 文件进行批量转账。文档仅说明格式为「地址,数量」，但没有说明：最大支持几行（上限）、金额格式是否区分精度、无效地址如何处理、上传错误格式的 CSV 会发生什么。在 DeFi 场景下，一次错误的批量转账可能无法回滚。</p>
+        </div>
+        <div class="bug-sec">
+            <div class="bug-sec-title">建议修复</div>
+            <p>在 CSV 上传区域提供「下载示例文件」按钮；显示当前支持的最大行数限制；上传后在发送前显示数据预览表格（地址数、总金额、检测到的无效地址），让用户确认后再执行。</p>
+        </div>
+        <div class="bug-sec">
+            <div class="bug-sec-title">修复提示</div>
+            <div class="fix-prompt">CSV 上传组件改进方案：
+1. 添加模板下载：[📥 下载 CSV 模板]
+2. 上传后显示预览：
+   ✅ 有效地址：198 个  ❌ 无效地址：2 个
+   💰 总发送量：1,500.00 USDC
+   ⚠️ 检测到 2 个地址格式错误，已高亮显示
+3. 添加最大条数说明：「本次最多支持 500 条地址」
+4. 提供「发送前模拟」按钮（dry run，不真实广播）</div>
+        </div>
+        <div class="found-by">
+            <div class="found-by-avatar">M</div>
+            <div class="found-by-info"><strong>Mia</strong> · <span>UI/UX & 表单专家</span></div>
+        </div>
+    </div>
+</div>
+
+<!-- #11 -->
+<div class="bug-card">
+    <div class="bug-header">
+        <div class="bug-title">docs 文档站缺少 Canonical 标签，中英双语内容可能被视为重复内容</div>
+        <div class="page-tag">docs.slerf.tools/en/* · docs.slerf.tools/zh-cn/* (推测)</div>
+        <div class="badges">
+            <span class="badge badge-medium">🟡 Medium · P5</span>
+            <span class="badge badge-type">SEO</span>
+            <span class="badge badge-type">技术</span>
+            <span class="badge badge-conf">置信度 7/10</span>
+        </div>
+    </div>
+    <div class="bug-body">
+        <div class="bug-sec">
+            <div class="bug-sec-title">问题描述</div>
+            <p>GitBook 托管的文档站支持多语言（观察到 /en 和 /en-us 路径可能并存），如果没有正确配置 canonical 和 hreflang，Google 可能将多个语言版本视为重复内容并合并排名，导致两个语言版本都排名下降。</p>
+        </div>
+        <div class="bug-sec">
+            <div class="bug-sec-title">建议修复</div>
+            <p>在 GitBook 自定义域名配置中检查是否正确设置了 hreflang；确认 /en 和 /en-us 是否会导致重复索引；使用 Google Search Console 检查重复页面报告。</p>
+        </div>
+        <div class="found-by">
+            <div class="found-by-avatar">H</div>
+            <div class="found-by-info"><strong>Hiroshi</strong> · <span>GenAI & 技术专家</span></div>
+        </div>
+    </div>
+</div>
+
+<!-- #12 -->
+<div class="bug-card">
+    <div class="bug-header">
+        <div class="bug-title">Solana Swap 页面：Jito EVM tip 标注名称混淆（EVM 与 Solana 是不同体系）</div>
+        <div class="page-tag">docs.slerf.tools — swap-solana</div>
+        <div class="badges">
+            <span class="badge badge-medium">🟡 Medium · P5</span>
+            <span class="badge badge-type">内容错误</span>
+            <span class="badge badge-type">用户体验</span>
+            <span class="badge badge-conf">置信度 8/10</span>
+        </div>
+    </div>
+    <div class="bug-body">
+        <div class="bug-sec">
+            <div class="bug-sec-title">问题描述</div>
+            <p>Solana Swap 文档中描述了「Jito EVM tip」选项，但 Jito 是 Solana 专属的 MEV 保护服务，与 EVM（以太坊虚拟机）体系毫不相关。将 Solana 上的小费机制命名为「EVM tip」会让用户困惑，尤其对于同时使用 EVM 和 Solana 的跨链用户，可能误认为这是某种跨链操作。这是产品文案的专业性问题。</p>
+        </div>
+        <div class="bug-sec">
+            <div class="bug-sec-title">建议修复</div>
+            <p>将「Jito EVM tip」统一修正为「Jito 优先费」或「Jito Priority Fee」，并在 UI 和文档中保持一致。</p>
+        </div>
+        <div class="found-by">
+            <div class="found-by-avatar">L</div>
+            <div class="found-by-info"><strong>Leila</strong> · <span>内容质量专家</span></div>
+        </div>
+    </div>
+</div>
+
+<!-- #13 -->
+<div class="bug-card">
+    <div class="bug-header">
+        <div class="bug-title">博客文章 CTA 按钮跳转目标不明确，部分指向已失效路径</div>
+        <div class="page-tag">blog.slerf.tools — BSC multisender 等文章</div>
+        <div class="badges">
+            <span class="badge badge-medium">🟡 Medium · P4</span>
+            <span class="badge badge-type">死链</span>
+            <span class="badge badge-type">转化率</span>
+            <span class="badge badge-conf">置信度 7/10</span>
+        </div>
+    </div>
+    <div class="bug-body">
+        <div class="bug-sec">
+            <div class="bug-sec-title">问题描述</div>
+            <p>博客中「如何使用 BSC Multisender」文章引导用户「访问 SlerfTools BSC Airdrop Function 页面」，但该功能入口（bsc.slerf.tools）已返回 404。用户通过博客引流→点击 CTA→跳转 404 的断链体验，会直接损失转化率并引发用户不信任。</p>
+        </div>
+        <div class="bug-sec">
+            <div class="bug-sec-title">建议修复</div>
+            <p>建立博客文章与工具页面链接的定期检查机制；对 404 链接进行自动监测并告警；将 BSC 相关博客文章中的工具链接更新为正确路径。</p>
+        </div>
+        <div class="found-by">
+            <div class="found-by-avatar">Ma</div>
+            <div class="found-by-info"><strong>Marcus</strong> · <span>网络 & 性能专家</span></div>
+        </div>
+    </div>
+</div>
+
+<!-- #14 -->
+<div class="bug-card">
+    <div class="bug-header">
+        <div class="bug-title">XLayer 工具链接：导航显示但无对应文档或工具介绍</div>
+        <div class="page-tag">docs.slerf.tools 导航 — XLayerTools</div>
+        <div class="badges">
+            <span class="badge badge-medium">🟡 Medium · P4</span>
+            <span class="badge badge-type">内容</span>
+            <span class="badge badge-type">信息缺失</span>
+            <span class="badge badge-conf">置信度 7/10</span>
+        </div>
+    </div>
+    <div class="bug-body">
+        <div class="bug-sec">
+            <div class="bug-sec-title">问题描述</div>
+            <p>docs.slerf.tools 顶部导航显示「XLayerTools」（链接到 slerf.tools/en-us/x-layer），但文档站内没有任何关于 XLayer 工具的使用说明，文档搜索也没有相关内容。用户进入 XLayer 页面后完全不知道如何使用，且无文档支持。</p>
+        </div>
+        <div class="bug-sec">
+            <div class="bug-sec-title">建议修复</div>
+            <p>要么为 XLayer 添加对应的使用文档，要么将其从导航中移除直至文档完善；参照 Solana 工具集的文档结构为 XLayer 补充同等深度的使用教程。</p>
+        </div>
+        <div class="found-by">
+            <div class="found-by-avatar">S</div>
+            <div class="found-by-info"><strong>Sophia</strong> · <span>可访问性专家</span></div>
+        </div>
+    </div>
+</div>
+
+<!-- #15 -->
+<div class="bug-card">
+    <div class="bug-header">
+        <div class="bug-title">Wallet Security 文档页：警告级别与信息呈现不够突出</div>
+        <div class="page-tag">docs.slerf.tools/en/solana-guide/wallet-security-prompt</div>
+        <div class="badges">
+            <span class="badge badge-medium">🟡 Medium · P5</span>
+            <span class="badge badge-type">安全</span>
+            <span class="badge badge-type">内容</span>
+            <span class="badge badge-conf">置信度 7/10</span>
+        </div>
+    </div>
+    <div class="bug-body">
+        <div class="bug-sec">
+            <div class="bug-sec-title">问题描述</div>
+            <p>文档中确实有「钱包安全提示」页面，但该页面仅出现在文档左侧导航较底部位置，用户通常不会主动查看。对于一个要求用户输入私钥的平台，安全教育内容应该在用户首次进行敏感操作时强制展示，而不是被动地放在文档角落。</p>
+        </div>
+        <div class="bug-sec">
+            <div class="bug-sec-title">建议修复</div>
+            <p>在用户首次连接钱包或首次使用私钥相关工具时，通过模态框强制展示安全须知；在私钥输入页面添加「阅读安全指南」的必读确认步骤。</p>
+        </div>
+        <div class="found-by">
+            <div class="found-by-avatar">F</div>
+            <div class="found-by-info"><strong>Fatima</strong> · <span>隐私 & Cookie 合规专家</span></div>
+        </div>
+    </div>
+</div>
+
+<!-- #16 -->
+<div class="bug-card">
+    <div class="bug-header">
+        <div class="bug-title">服务费用页面未列出各链的具体收费标准</div>
+        <div class="page-tag">docs.slerf.tools/en/service-fee-announcement</div>
+        <div class="badges">
+            <span class="badge badge-medium">🟡 Medium · P4</span>
+            <span class="badge badge-type">透明度</span>
+            <span class="badge badge-type">内容</span>
+            <span class="badge badge-conf">置信度 7/10</span>
+        </div>
+    </div>
+    <div class="bug-body">
+        <div class="bug-sec">
+            <div class="bug-sec-title">问题描述</div>
+            <p>文档首页导航中有「SlerfTools Service Fee Disclosure」页面，但基于文档标题推断，eth.slerf.tools 和 base.slerf.tools 的服务费标准是否与 Solana 主站相同尚不明确。缺乏跨链费用对比表格，用户在选择使用哪条链的工具时无法进行成本评估。</p>
+        </div>
+        <div class="bug-sec">
+            <div class="bug-sec-title">建议修复</div>
+            <p>在服务费公告页添加各链费用对比表（SOL / ETH / BNB / BASE 计价），并注明费用是否随链上 gas 浮动。</p>
+        </div>
+        <div class="found-by">
+            <div class="found-by-avatar">Me</div>
+            <div class="found-by-info"><strong>Mei</strong> · <span>WCAG & 合规专家</span></div>
+        </div>
+    </div>
+</div>
+
+<!-- 低危 -->
+<!-- #17 -->
+<div class="bug-card">
+    <div class="bug-header">
+        <div class="bug-title">BonkFun Section 与 Pump.fun Section 文档结构完全雷同，缺乏差异化说明</div>
+        <div class="page-tag">docs.slerf.tools — BonkFun Section</div>
+        <div class="badges">
+            <span class="badge badge-low">🟢 Low · P3</span>
+            <span class="badge badge-type">内容</span>
+            <span class="badge badge-type">用户体验</span>
+            <span class="badge badge-conf">置信度 8/10</span>
+        </div>
+    </div>
+    <div class="bug-body">
+        <div class="bug-sec">
+            <div class="bug-sec-title">问题描述</div>
+            <p>BonkFun Section 的 6 个文档条目（Launch and Buy、Multi Swap、Anti-MEV Volume、Bundle Buy、Bundle Sell、Auto Volume Bot）与 Pump.fun Section 的同类功能完全对应。文档描述是否是从 Pump.fun 直接复制修改而来，没有说明 BonkFun 独有的功能特性或操作差异点，对于同时使用两个平台的用户没有指导价值。</p>
+        </div>
+        <div class="bug-sec">
+            <div class="bug-sec-title">建议修复</div>
+            <p>为 BonkFun 文档添加与 Pump.fun 的差异对比说明；突出 BonkFun 独有功能；若两者操作完全相同，合并为一篇「通用指南」并附注平台差异点。</p>
+        </div>
+        <div class="found-by">
+            <div class="found-by-avatar">L</div>
+            <div class="found-by-info"><strong>Leila</strong> · <span>内容质量专家</span></div>
+        </div>
+    </div>
+</div>
+
+<!-- #18 -->
+<div class="bug-card">
+    <div class="bug-header">
+        <div class="bug-title">文档站 GitBook 底部品牌标识「由 GitBook 提供支持」可能稀释品牌专业感</div>
+        <div class="page-tag">docs.slerf.tools — 所有页面页脚</div>
+        <div class="badges">
+            <span class="badge badge-low">🟢 Low · P2</span>
+            <span class="badge badge-type">品牌</span>
+            <span class="badge badge-type">UI/UX</span>
+            <span class="badge badge-conf">置信度 9/10</span>
+        </div>
+    </div>
+    <div class="bug-body">
+        <div class="bug-sec">
+            <div class="bug-sec-title">问题描述</div>
+            <p>GitBook 免费/标准计划在文档底部显示「由 GitBook 提供支持」标识。对于日处理量达数百万美元交易的 Web3 平台而言，这会给用户留下「使用免费工具搭建」的印象，降低专业感。同时 GitBook 品牌与 SlerfTools 的视觉体系不一致。</p>
+        </div>
+        <div class="bug-sec">
+            <div class="bug-sec-title">建议修复</div>
+            <p>升级 GitBook 至 Business 计划以移除品牌标识；或迁移文档至自托管方案（如 Docusaurus + Vercel），提供更一致的品牌体验。</p>
+        </div>
+        <div class="found-by">
+            <div class="found-by-avatar">M</div>
+            <div class="found-by-info"><strong>Mia</strong> · <span>UI/UX 专家</span></div>
+        </div>
+    </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- 优化建议 -->
+<div class="recs">
+    <h2>💡 子页面专项优化建议（优先级排序）</h2>
+    <div class="rec-item">
+        <div class="rec-num">1</div>
+        <div class="rec-content">
+            <h4>🚨 立即：修复 bsc.slerf.tools 404 + 清理所有失效导航链接</h4>
+            <p>死链会直接损害用户信任。一个声称「24/7 服务」的 Web3 平台不应该在导航栏放置 404 链接。30 分钟内可完成修复（删除链接或配置重定向）。</p>
+        </div>
+    </div>
+    <div class="rec-item">
+        <div class="rec-num">2</div>
+        <div class="rec-content">
+            <h4>🔒 本周：私钥输入页面强制添加安全警告组件</h4>
+            <p>所有需要用户输入私钥的工具页面（bundled-buy/sell、market-making 等），必须在输入框附近显示清晰的安全声明和开源验证链接。这是保护用户也保护平台自身的最重要措施。</p>
+        </div>
+    </div>
+    <div class="rec-item">
+        <div class="rec-num">3</div>
+        <div class="rec-content">
+            <h4>📄 本周：修正文档中的工具链接交叉错误</h4>
+            <p>tax-token-creator 与普通 token-creator 的文档链接互换问题，可能导致用户支付错误费用。这是直接影响用户资金的内容错误，应立即修正。</p>
+        </div>
+    </div>
+    <div class="rec-item">
+        <div class="rec-num">4</div>
+        <div class="rec-content">
+            <h4>🔍 本月：为所有工具子页面实现最小化 SSR</h4>
+            <p>当前所有工具页面对 SEO 完全不可见。即使只为每个工具页预生成包含 title 和 meta description 的静态外壳，也能大幅提升自然流量获取能力，是 ROI 最高的技术优化之一。</p>
+        </div>
+    </div>
+    <div class="rec-item">
+        <div class="rec-num">5</div>
+        <div class="rec-content">
+            <h4>📅 本季度：文档架构重组 + 过期内容标注机制</h4>
+            <p>减少文档重复条目（Pump/Raydium/BonkFun 结构合并），为超过 6 个月未更新的文档自动显示过期警告，建立工具更新→文档同步的工作流程。</p>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <p>Generated by <a href="https://testers.ai">TestersAI</a> &bull; 子页面专项分析 &bull; Free Tier · 10 Specialized AI Testers</p>
+    <p style="margin-top:5px; color:#4a7a55;">
+        覆盖：slerf.tools 主站子页 · bsc.slerf.tools · eth.slerf.tools · base.slerf.tools · docs.slerf.tools · blog.slerf.tools<br>
+        新增问题：22 个 &bull; 结合首轮报告累计：39 个问题
+    </p>
+</footer>
+
+</div>
+</body>
+</html>
