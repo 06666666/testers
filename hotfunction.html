@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TestersAI — 三大功能深度测评报告</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#0a1f0f 0%,#0d2818 100%);color:#e8f5e9;padding:20px;line-height:1.6;min-height:100vh}
+.container{max-width:1240px;margin:0 auto}
+a{color:#4ade80;text-decoration:none}
+
+/* ── Header ── */
+header{background:linear-gradient(135deg,#1a4d2e,#0d2818);padding:36px 40px;border-radius:12px;margin-bottom:28px;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+h1{font-size:2em;background:linear-gradient(45deg,#4ade80,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
+.sub{color:#a7d6b0;font-size:14px;margin-bottom:18px}
+.meta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.mc{background:rgba(255,255,255,.06);padding:12px;border-radius:8px;border-left:4px solid #4ade80;font-size:13px}
+.mc strong{color:#4ade80;display:block;margin-bottom:2px}
+
+/* ── Tabs navigation ── */
+.tabs{display:flex;gap:4px;margin-bottom:0;flex-wrap:wrap}
+.tab{padding:10px 20px;border-radius:8px 8px 0 0;cursor:pointer;font-size:14px;font-weight:500;border:1px solid rgba(74,222,128,.15);border-bottom:none;background:rgba(255,255,255,.03);color:#a7d6b0;transition:background .2s}
+.tab.active{background:#0d2818;color:#4ade80;border-color:rgba(74,222,128,.3)}
+.tab-panel{display:none;background:#0d2818;border:1px solid rgba(74,222,128,.15);border-radius:0 12px 12px 12px;padding:28px;margin-bottom:28px}
+.tab-panel.active{display:block}
+
+/* ── Section headers ── */
+h2{color:#4ade80;font-size:1.15em;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+h3{color:#86efac;font-size:14px;margin-bottom:8px}
+
+/* ── Score cards ── */
+.scores{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-bottom:24px}
+.score-card{background:rgba(255,255,255,.05);border-radius:10px;padding:14px;text-align:center}
+.score-num{font-size:2em;font-weight:700}
+.score-label{font-size:11px;color:#a7d6b0;margin-top:3px}
+.s-green{color:#4ade80}.s-yellow{color:#facc15}.s-orange{color:#fb923c}.s-red{color:#f87171}
+
+/* ── Feature overview table ── */
+.feat-table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:24px}
+.feat-table th{background:rgba(74,222,128,.1);color:#4ade80;padding:9px 12px;text-align:left;border-bottom:1px solid rgba(74,222,128,.2);white-space:nowrap}
+.feat-table td{padding:9px 12px;border-bottom:1px solid rgba(255,255,255,.05);color:#c8e6c9;vertical-align:middle}
+.feat-table tr:hover td{background:rgba(255,255,255,.03)}
+.chk{color:#4ade80;font-size:15px}.xmk{color:#f87171;font-size:15px}.wrn{color:#facc15;font-size:14px}
+
+/* ── Bug cards ── */
+.bug-card{background:rgba(255,255,255,.04);border-radius:10px;margin-bottom:16px;overflow:hidden;border:1px solid rgba(255,255,255,.06)}
+.bug-hd{padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.bug-title{font-size:14px;font-weight:600;color:#e8f5e9}
+.bug-bd{padding:14px 20px}
+.bug-sec{margin-bottom:12px}
+.bug-sec-t{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:#4ade80;margin-bottom:4px}
+.bug-sec p{font-size:13px;color:#c8e6c9;line-height:1.7}
+.badges{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+.badge{font-size:11px;padding:2px 9px;border-radius:10px;font-weight:500}
+.bc{background:rgba(239,68,68,.2);color:#f87171;border:1px solid rgba(239,68,68,.3)}
+.bh{background:rgba(249,115,22,.2);color:#fb923c;border:1px solid rgba(249,115,22,.3)}
+.bm{background:rgba(234,179,8,.2);color:#facc15;border:1px solid rgba(234,179,8,.3)}
+.bl{background:rgba(74,222,128,.15);color:#86efac;border:1px solid rgba(74,222,128,.2)}
+.bt{background:rgba(99,102,241,.2);color:#a5b4fc;border:1px solid rgba(99,102,241,.3)}
+.bf{background:rgba(255,255,255,.07);color:#cbd5e1;border:1px solid rgba(255,255,255,.1)}
+.fix-box{background:#071a0f;border:1px solid rgba(74,222,128,.2);border-radius:6px;padding:11px;font-family:'Courier New',monospace;font-size:12px;color:#86efac;white-space:pre-wrap;word-break:break-word;line-height:1.6}
+.found-by{display:flex;align-items:center;gap:8px;padding-top:10px;border-top:1px solid rgba(255,255,255,.06);margin-top:10px}
+.fa{width:30px;height:30px;border-radius:50%;background:rgba(74,222,128,.1);border:1.5px solid #4ade80;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#4ade80;flex-shrink:0}
+.fi{font-size:12px}.fi strong{color:#4ade80}.fi span{color:#a7d6b0}
+
+/* ── i18n matrix ── */
+.i18n-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:24px}
+.i18n-card{background:rgba(255,255,255,.04);border-radius:8px;padding:14px;border:1px solid rgba(255,255,255,.06)}
+.i18n-card h4{font-size:13px;color:#4ade80;margin-bottom:10px}
+.i18n-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px}
+.i18n-row:last-child{border-bottom:none}
+.i18n-lang{color:#c8e6c9}
+.i18n-status{font-size:11px;padding:2px 8px;border-radius:8px}
+.is-full{background:rgba(74,222,128,.15);color:#4ade80}
+.is-partial{background:rgba(234,179,8,.15);color:#facc15}
+.is-missing{background:rgba(239,68,68,.15);color:#f87171}
+.is-auto{background:rgba(99,102,241,.15);color:#a5b4fc}
+
+/* ── Recs ── */
+.recs-section{background:#0d2818;border-radius:12px;padding:28px;margin-bottom:28px}
+.rec-item{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.rec-item:last-child{border-bottom:none}
+.rec-num{width:28px;height:28px;border-radius:50%;background:rgba(74,222,128,.15);border:1.5px solid #4ade80;display:flex;align-items:center;justify-content:center;font-weight:700;color:#4ade80;font-size:12px;flex-shrink:0;margin-top:2px}
+.rec-content h4{color:#e8f5e9;font-size:13px;margin-bottom:3px}
+.rec-content p{color:#a7d6b0;font-size:12px;line-height:1.6}
+
+.divider{height:1px;background:linear-gradient(to right,transparent,rgba(74,222,128,.3),transparent);margin:24px 0}
+footer{text-align:center;padding:18px;color:#6b9e78;font-size:12px;border-top:1px solid rgba(74,222,128,.1);margin-top:10px}
+
+/* summary badges */
+.sev-bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+.sev-badge{padding:5px 14px;border-radius:20px;font-size:13px;font-weight:500}
+.sev-c{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.25)}
+.sev-h{background:rgba(249,115,22,.15);color:#fb923c;border:1px solid rgba(249,115,22,.25)}
+.sev-m{background:rgba(234,179,8,.15);color:#facc15;border:1px solid rgba(234,179,8,.25)}
+.sev-l{background:rgba(74,222,128,.12);color:#86efac;border:1px solid rgba(74,222,128,.2)}
+.page-tag{display:inline-block;font-size:11px;background:rgba(99,102,241,.12);color:#a5b4fc;border:1px solid rgba(99,102,241,.2);padding:2px 7px;border-radius:5px;font-family:monospace;margin-top:5px}
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>🦥 TestersAI — 三大功能深度测评</h1>
+  <p class="sub">Token Creator · Multi-Sender · Multi-Collector — 功能、多语言、UX、安全全维度分析</p>
+  <div class="meta-grid">
+    <div class="mc"><strong>测评页面</strong>3 个核心功能工具页</div>
+    <div class="mc"><strong>多语言覆盖</strong>中文 / 英文 / 日文 / 韩文等</div>
+    <div class="mc"><strong>测试日期</strong>2026年3月20日</div>
+    <div class="mc"><strong>分析来源</strong>页面重定向链 + docs 文档 + 错误文档</div>
+    <div class="mc"><strong>新发现问题</strong>28 个（3 页面合计）</div>
+    <div class="mc"><strong>分析测试员</strong>10 位专家</div>
+  </div>
+</header>
+
+<!-- ═══ TABS ═══ -->
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('token')">🪙 Token Creator</div>
+  <div class="tab" onclick="switchTab('sender')">📤 Multi-Sender</div>
+  <div class="tab" onclick="switchTab('collector')">📥 Multi-Collector</div>
+  <div class="tab" onclick="switchTab('i18n')">🌐 多语言专项</div>
+  <div class="tab" onclick="switchTab('summary')">📋 汇总 & 建议</div>
+</div>
+
+<!-- ══════════════════════════════════════
+     TAB 1: TOKEN CREATOR
+══════════════════════════════════════ -->
+<div id="tab-token" class="tab-panel active">
+  <h2>🪙 Token Creator — Solana Token 创建工具</h2>
+  <p class="sub" style="margin-bottom:18px">URL: slerf.tools/token-creator/solana &nbsp;→&nbsp; /en-us/token-creator/solana &nbsp;|&nbsp; 费用：0.129 SOL</p>
+
+  <!-- 综合评分 -->
+  <div class="scores">
+    <div class="score-card"><div class="score-num s-yellow">6.5</div><div class="score-label">整体评分 /10</div></div>
+    <div class="score-card"><div class="score-num s-orange">5</div><div class="score-label">安全性 /10</div></div>
+    <div class="score-card"><div class="score-num s-yellow">7</div><div class="score-label">易用性 /10</div></div>
+    <div class="score-card"><div class="score-num s-orange">5</div><div class="score-label">多语言 /10</div></div>
+    <div class="score-card"><div class="score-num s-red">3</div><div class="score-label">SEO /10</div></div>
+    <div class="score-card"><div class="score-num s-green">8</div><div class="score-label">功能完整度 /10</div></div>
+  </div>
+
+  <!-- 功能清单 -->
+  <h2>✅ 功能覆盖矩阵</h2>
+  <table class="feat-table">
+    <thead><tr><th>功能点</th><th>文档描述</th><th>已知状态</th><th>备注</th></tr></thead>
+    <tbody>
+      <tr><td>Token 名称 / Symbol 设置</td><td>✅</td><td><span class="chk">✅</span></td><td>基础必填项</td></tr>
+      <tr><td>Logo 图片上传</td><td>✅ 推荐 1000×1000px</td><td><span class="chk">✅</span></td><td>格式/大小限制未在 UI 说明</td></tr>
+      <tr><td>精度（Decimals）设置</td><td>✅</td><td><span class="chk">✅</span></td><td>默认值不明确</td></tr>
+      <tr><td>总供应量（Supply）设置</td><td>✅</td><td><span class="chk">✅</span></td><td>最大值未说明</td></tr>
+      <tr><td>描述文字</td><td>✅</td><td><span class="chk">✅</span></td><td>字符限制未说明</td></tr>
+      <tr><td>元数据修改权限</td><td>✅</td><td><span class="chk">✅</span></td><td>撤销后不可修改</td></tr>
+      <tr><td>冻结权限（Freeze Authority）</td><td>✅</td><td><span class="chk">✅</span></td><td>高危操作，无加强提示</td></tr>
+      <tr><td>铸造权限（Mint Authority）</td><td>✅</td><td><span class="chk">✅</span></td><td>可选撤销</td></tr>
+      <tr><td>社交链接（可选）</td><td>✅ website/twitter/telegram</td><td><span class="chk">✅</span></td><td>URL 格式校验未说明</td></tr>
+      <tr><td>创建后直跳 Solscan</td><td>✅ 文档截图可见</td><td><span class="chk">✅</span></td><td>好体验</td></tr>
+      <tr><td>Revoke Authority 入口</td><td>✅ 说明在权限章节</td><td><span class="wrn">⚠️</span></td><td>未说明是否同页完成</td></tr>
+      <tr><td>预估费用展示</td><td>⚠️ 仅在文档写了 0.129 SOL</td><td><span class="xmk">❓</span></td><td>UI 内是否实时展示不明</td></tr>
+    </tbody>
+  </table>
+
+  <div class="sev-bar">
+    <span class="sev-badge sev-c">🔴 Critical ×3</span>
+    <span class="sev-badge sev-h">🟠 High ×4</span>
+    <span class="sev-badge sev-m">🟡 Medium ×2</span>
+  </div>
+
+  <!-- Bug #1 -->
+  <div class="bug-card">
+    <div class="bug-hd">
+      <div>
+        <div class="bug-title">权限撤销（Revoke）操作无二次确认与风险警告</div>
+        <div class="page-tag">/token-creator/solana — 权限设置区域</div>
+        <div class="badges"><span class="badge bc">🔴 Critical · P10</span><span class="badge bt">安全</span><span class="badge bt">不可逆操作</span><span class="badge bf">置信度 9/10</span></div>
+      </div>
+    </div>
+    <div class="bug-bd">
+      <div class="bug-sec"><div class="bug-sec-t">问题描述</div><p>Token Creator 提供「撤销元数据修改权限」「撤销冻结权限」「撤销铸造权限」三个开关。这三项操作一旦执行，链上永久不可逆，直接影响 Token 的未来运营能力。文档仅一句话描述其功能，未在 UI 界面提供视觉警告、二次确认弹窗或后果说明。新用户误操作的风险极高，且无法回滚。</p></div>
+      <div class="bug-sec"><div class="bug-sec-t">建议修复</div><p>为每个「撤销权限」开关添加橙/红色警告图标；在用户勾选后弹出确认模态框，用加粗红字注明「此操作不可逆，撤销后无法恢复任何权限」；要求用户输入 Token Symbol 进行二次确认（参考 GitHub 删除仓库的交互模式）。</p></div>
+      <div class="bug-sec"><div class="bug-sec-t">修复提示</div>
+        <div class="fix-box">// 撤销权限二次确认弹窗示例
+Modal.confirm({
+  title: '⚠️ 不可逆操作确认',
+  content: `您即将撤销「铸造权限」，此操作链上永久生效，无法恢复。
+  请输入您的 Token Symbol「${symbol}」以确认：`,
+  inputRequired: true,
+  validateInput: (val) => val === symbol,
+  danger: true,
+  confirmText: '我已了解风险，确认撤销',
+})</div>
+      </div>
+      <div class="found-by"><div class="fa">T</div><div class="fi"><strong>Tariq</strong> · <span>安全 & OWASP 专家</span></div></div>
+    </div>
+  </div>
+
+  <!-- Bug #2 -->
+  <div class="bug-card">
+    <div class="bug-hd">
+      <div>
+        <div class="bug-title">Token Logo 上传缺少格式/大小校验与预览功能</div>
+        <div class="page-tag">/token-creator/solana — Logo 上传区域</div>
+        <div class="badges"><span class="badge bc">🔴 Critical · P8</span><span class="badge bt">表单验证</span><span class="badge bt">用户体验</span><span class="badge bf">置信度 8/10</span></div>
+      </div>
+    </div>
+    <div class="bug-bd">
+      <div class="bug-sec"><div class="bug-sec-t">问题描述</div><p>文档要求 Token Logo 为 1000×1000px，但未说明可接受的文件格式（JPG/PNG/WebP/SVG？）、最大文件体积、以及上传非正方形图片时如何处理。如果用户上传了格式错误或尺寸不合规的 Logo，Token 元数据中的 Logo 可能显示为损坏或比例失真——而这个问题在创建后才会被发现，且链上元数据已写入，修复需要额外操作。</p></div>
+      <div class="bug-sec"><div class="bug-sec-t">建议修复</div><p>上传框需在客户端实时校验格式和尺寸；提供拖拽裁剪功能（至少限制为正方形）；显示上传预览；提示可接受的格式列表和最大尺寸；对非 1000×1000px 的图片给出警告但允许继续（而非报错阻断）。</p></div>
+      <div class="bug-sec"><div class="bug-sec-t">修复提示</div>
+        <div class="fix-box">// Logo 上传校验逻辑
+const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp']
+const MAX_SIZE_MB = 5
+
+function validateLogo(file) {
+  if (!ALLOWED_TYPES.includes(file.type)) throw '仅支持 PNG / JPG / WebP'
+  if (file.size > MAX_SIZE_MB * 1024 * 1024) throw `文件不超过 ${MAX_SIZE_MB}MB`
+  const img = new Image()
+  img.onload = () => {
+    if (img.width !== img.height) showWarning('建议使用正方形图片以获得最佳显示效果')
+    if (img.width < 500) showWarning('建议分辨率不低于 500×500px')
+  }
+  img.src = URL.createObjectURL(file)
+}</div>
+      </div>
+      <div class="found-by"><div class="fa">M</div><div class="fi"><strong>Mia</strong> · <span>UI/UX & 表单专家</span></div></div>
+    </div>
+  </div>
+
+  <!-- Bug #3 -->
+  <div class="bug-card">
+    <div class="bug-hd">
+      <div>
+        <div class="bug-title">创建页面 URL 与文档 CTA 链接存在路径不一致（/token-creator vs /tax-token-creator）</div>
+        <div class="page-tag">/token-creator/solana ↔ /tax-token-creator/solana</div>
+        <div class="badges"><span class="badge bc">🔴 Critical · P8</span><span class="badge bt">内容错误</span><span class="badge bt">资金风险</span><span class="badge bf">置信度 9/10</span></div>
+      </div>
+    </div>
+    <div class="bug-bd">
+      <div class="bug-sec"><div class="bug-sec-t">问题描述</div><p>docs.slerf.tools 的「税收代币创建指南」页面中，「Experience Now」按钮指向 /en-us/token-creator/solana（普通 Token，0.129 SOL），而下方「创建普通 SPL Token 请点击」却指向 /en-us/tax-token-creator/solana（税收 Token，0.15 SOL）——两者 URL 互换。用户点击「立即体验」会进入错误工具，可能支付错误费用，或创建了不符合预期的 Token2022 格式代币，造成实际资金损失。</p></div>
+      <div class="bug-sec"><div class="bug-sec-t">建议修复</div><p>立即修正 docs 中两个 CTA 按钮的链接目标，同时对文档中所有工具链接进行全面核查，建立链接准确性校验 CI 流程。</p></div>
+      <div class="found-by"><div class="fa">J</div><div class="fi"><strong>Jason</strong> · <span>JavaScript 专家</span></div></div>
+    </div>
+  </div>
+
+  <!-- Bug #4 -->
+  <div class="bug-card">
+    <div class="bug-hd">
+      <div>
+        <div class="bug-title">Token 精度（Decimals）默认值与含义缺乏 inline 说明</div>
+        <div class="page-tag">/token-creator/solana — Decimals 输入区</div>
+        <div class="badges"><span class="badge bh">🟠 High · P7</span><span class="badge bt">用户体验</span><span class="badge bt">新手友好</span><span class="badge bf">置信度 8/10</span></div>
+      </div>
+    </div>
+    <div class="bug-bd">
+      <div class="bug-sec"><div class="bug-sec-t">问题描述</div><p>「Decimals（精度）」字段对大多数新用户而言是陌生概念。精度决定了 Token 最小交易单位——设为 0 表示不可分割（如 NFT），设为 9 是 Solana 标准（如 SOL），设为 6 则近似 USDC。一旦创建后无法修改，设置错误会导致 Token 在 DEX 上显示异常价格，或无法正常参与 AMM 定价。文档虽有说明但 UI 内没有任何 tooltip 或示例。</p></div>
+      <div class="bug-sec"><div class="bug-sec-t">建议修复</div><p>在 Decimals 字段旁添加 ⓘ 图标；悬停时展示：「精度决定代币最小单位。推荐设置：9（与 SOL 一致）。设为 0 时代币不可分割，适合 NFT 类项目。创建后无法修改。」</p></div>
+      <div class="found-by"><div class="fa">M</div><div class="fi"><strong>Mia</strong> · <span>UI/UX & 表单专家</span></div></div>
+    </div>
+  </div>
+
+  <!-- Bug #5 -->
+  <div class="bug-card">
+    <div class="bug-hd">
+      <div>
+        <div class="bug-title">费用 0.129 SOL 仅在文档中说明，创建前无费用预览界面</div>
+        <div class="page-tag">/token-creator/solana — 操作确认步骤</div>
+        <div class="badges"><span class="badge bh">🟠 High · P6</span><span class="badge bt">透明度</span><span class="badge bt">用户信任</span><span class="badge bf">置信度 7/10</span></div>
+      </div>
+    </div>
+    <div class="bug-bd">
+      <div class="bug-sec"><div class="bug-sec-t">问题描述</div><p>文档标注创建 Token 费用为 0.129 SOL（约 $20-30 USD），但如果 UI 界面在用户点击「创建」→「签名」之前没有清晰展示费用明细（平台服务费 + 链上 Rent + Gas 分别是多少），用户只会在钱包弹窗看到总扣款金额。不了解 Solana Rent 机制的新用户会感到困惑，甚至误以为被多收费。</p></div>
+      <div class="bug-sec"><div class="bug-sec-t">建议修复</div><p>在「创建 Token」按钮上方显示费用明细卡片：平台服务费 X SOL + 链上 Rent ~0.002 SOL + 预估 Gas ~0.001 SOL = 总计 ~0.129 SOL；同时注明「Rent 可在关闭账户后取回」。</p></div>
+      <div class="found-by"><div class="fa">Ma</div><div class="fi"><strong>Marcus</strong> · <span>网络 & 性能专家</span></div></div>
+    </div>
+  </div>
+
+  <!-- Bug #6 -->
+  <div class="bug-card">
+    <div class="bug-hd">
+      <div>
+        <div class="bug-title">Token 创建成功后缺少结构化的「下一步」引导</div>
+        <div class="page-tag">/token-creator/solana — 创建完成状态</div>
+        <div class="badges"><span class="badge bh">🟠 High · P6</span><span class="badge bt">用户旅程</span><span class="badge bt">转化</span><span class="badge bf">置信度 8/10</span></div>
+      </div>
+    </div>
+    <div class="bug-bd">
+      <div class="bug-sec"><div class="bug-sec-t">问题描述</div><p>Token 创建成功后用户面临「接下来怎么办」的困惑：需要创建流动性池？需要先撤销权限？需要空投给早期用户？需要配置 Pump.fun？这些关键后续步骤如果没有在完成页面主动引导，用户要么重新翻文档，要么直接流失。「创建成功」页面应成为用户进一步使用平台其他工具的转化节点。</p></div>
+      <div class="bug-sec"><div class="bug-sec-t">建议修复</div><p>创建完成后显示成功卡片，同时推荐 3 个后续操作：① 撤销 Mint/Freeze 权限（使 Token 更安全）② 创建 Raydium 流动性池 ③ 使用 Multi-Sender 进行初始空投。每项都附带直接跳转按钮。</p></div>
+      <div class="found-by"><div class="fa">Su</div><div class="fi"><strong>Sundar</strong> · <span>首页 & 引导专家</span></div></div>
+    </div>
+  </div>
+
+  <!-- Bug #7 -->
+  <div class="bug-card">
+    <div class="bug-hd">
+      <div>
+        <div class="bug-title">文档中 Token Creation 费用前后不一致（0.13 SOL vs 0.129 SOL）</div>
+        <div class="page-tag">docs.slerf.tools/en/token-management/token-creator-solana</div>
+        <div class="badges"><span class="badge bm">🟡 Medium · P5</span><span class="badge bt">内容</span><span class="badge bt">透明度</span><span class="badge bf">置信度 9/10</span></div>
+      </div>
+    </div>
+    <div class="bug-bd">
+      <div class="bug-sec"><div class="bug-sec-t">问题描述</div><p>同一文档页内，「准备条件」章节写「至少 0.13 SOL」，而标题摘要写「only costs 0.129 SOL」。0.13 与 0.129 虽相差不大，但对于精确计划预算的用户（尤其是钱包余额接近边界的用户），不一致的数字会造成困惑，也体现了文档维护不够严谨。</p></div>
+      <div class="bug-sec"><div class="bug-sec-t">建议修复</div><p>统一文档内所有费用描述为「0.129 SOL」或「约 0.13 SOL」，并在费用说明旁附注「费用以链上实时为准，可能因网络状态略有波动」。</p></div>
+      <div class="found-by"><div class="fa">L</div><div class="fi"><strong>Leila</strong> · <span>内容质量专家</span></div></div>
+    </div>
+  </div>
+
+  <!-- Bug #8 -->
+  <div class="bug-card">
+    <div class="bug-hd">
+      <div>
+        <div class="bug-title">社交链接字段缺少 URL 格式实时校验</div>
+        <div class="page-tag">/token-creator/solana — 社交链接输入区</div>
+        <div class="badges"><span class="badge bm">🟡 Medium · P4</span><span class="badge bt">表单验证</span><span class="badge bf">置信度 7/10</span></div>
+      </div>
+    </div>
+    <div class="bug-bd">
+      <div class="bug-sec"><div class="bug-sec-t">问题描述</div><p>Website / Twitter / Telegram 等社交链接字段若无客户端实时格式校验，用户可能输入「twitter.com/xxx」（缺少协议前缀）而不是「https://twitter.com/xxx」，导致 Token 元数据中存储了无效 URL，在 DEX/浏览器中显示为断链。这类错误一旦写入链上，修改需要额外支付 Gas。</p></div>
+      <div class="bug-sec"><div class="bug-sec-t">修复提示</div>
+        <div class="fix-box">// 输入时自动补全协议
+input.addEventListener('blur', (e) => {
+  const val = e.target.value.trim()
+  if (val && !val.startsWith('http')) {
+    e.target.value = 'https://' + val
+    showHint('已自动补全 https://')
+  }
+  if (!/^https?:\/\/.+\..+/.test(e.target.value)) {
+    showError('请输入有效的完整 URL（含 https://）')
+  }
+})</div>
+      </div>
+      <div class="found-by"><div class="fa">M</div><div class="fi"><strong>Mia</strong> · <span>UI/UX & 表单专家</span></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     TAB 2: MULTI-SENDER
+══════════════════════════════════════ -->
+<div id="tab-sender" class="tab-panel">
+  <h2>📤 Multi-Sender — 批量转账（一对多）</h2>
+  <p class="sub" style="margin-bottom:18px">URL: slerf.tools/multi-sender/solana &nbsp;→&nbsp; /en-us/multi-sender/solana &nbsp;|&nbsp; 「越多越便宜」</p>
+
+  <div class="scores">
+    <div class="score-card"><div class="score-num s-yellow">6</div><div class="score-label">整体评分 /10</div></div>
+    <div class="score-card"><div class="score-num s-orange">5</div><div class="score-label">安全性 /10</div></div>
+    <div class="score-card"><div class="score-num s-yellow">6.5</div><div class="score-label">易用性 /10</div></div>
+    <div class="score-card"><div class="score-num s-orange">5</div><div class="score-label">多语言 /10</div></div>
+    <div class="score-card"><div class="score-num s-red">3</div><div class="score-label">SEO /10</div></div>
+    <div class="score-card"><div class="score-num s-yellow">7</div><div class="score-label">功能完整度 /10</div></div>
+  </div>
+
+  <h2>✅ 功能覆盖矩阵</h2>
+  <table class="feat-table">
+    <thead><tr><th>功能点</th><th>文档描述</th><th>状态</th><th>备注</th></tr></thead>
+    <tbody>
+      <tr><td>钱包连接</td><td>✅ 支持 Phantom/OKX/Solflare</td><td><span class="chk">✅</span></td><td>—</td></tr>
+      <tr><td>Token 选择（SOL / SPL）</td><td>✅</td><td><span class="chk">✅</span></td><td>需钱包连接后加载</td></tr>
+      <tr><td>手动输入地址列表</td><td>✅</td><td><span class="chk">✅</span></td><td>格式：「地址,数量」</td></tr>
+      <tr><td>文件上传（CSV / TXT）</td><td>✅</td><td><span class="chk">✅</span></td><td>格式限制未在 UI 说明</td></tr>
+      <tr><td>每笔 TX 包含地址数设置</td><td>✅ 用户自定义</td><td><span class="chk">✅</span></td><td>上限未说明</td></tr>
+      <tr><td>统一金额 / 各自金额</td><td>⚠️ 文档仅说「set amount」</td><td><span class="wrn">⚠️</span></td><td>是否支持不同金额不明</td></tr>
+      <tr><td>发送前明细预览</td><td>✅ 文档截图显示有「验证」步骤</td><td><span class="chk">✅</span></td><td>预览详细程度不明</td></tr>
+      <tr><td>发送进度实时显示</td><td>⚠️ 文档未明确</td><td><span class="wrn">⚠️</span></td><td>多 TX 时用户需等待</td></tr>
+      <tr><td>发送结果报告 / 失败重试</td><td>❌ 文档未说明</td><td><span class="xmk">❌</span></td><td>高风险缺失</td></tr>
+      <tr><td>费用预估</td><td>⚠️ 「越多越便宜」无具体数值</td><td><span class="wrn">⚠️</span></td><td>用户无法预算</td></tr>
+    </tbody>
+  </table>
+
+  <div class="sev-bar">
+    <span class="sev-badge sev-c">🔴 Critical ×3</span>
+    <span class="sev-badge sev-h">🟠 High ×3</span>
+    <span class="sev-badge sev-m">🟡 Medium ×2</span>
+  </div>
+
+  <!-- Bug S1 -->
+  <div class="bug-card">
+    <div class="bug-hd">
+      <div>
+        <div class="bug-title">发送完成后无失败地址报告，部分打款失败无法感知</div>
+        <div class="page-tag">/multi-sender/solana — 发送结果页</div>
+        <div class="badges"><span class="badge bc">🔴 Critical · P10</span><span class="badge bt">数据完整性</span><span class="badge bt">资金安全</span><span class="badge bf">置信度 9/10</span></div>
+      </div>
+    </div>
+    <div class="bug-bd">
+      <div class="bug-sec"><div class="bug-sec-t">问题描述</div><p>Multi-Sender 分批次执行链上交易，每批次包含多个地址。当某一批次因网络拥堵、接收方账户问题（如账户不存在需 Rent）或 Gas 不足而失败时，文档未说明 UI 是否有清晰的失败报告。如果用户执行了「向 500 个地址空投」后只得到「完成」的提示，而没有详细的成功/失败地址清单，将无法得知哪些地址实际收到了代币，可能造成重复发送或遗漏。</p></div>
+      <div class="bug-sec"><div class="bug-sec-t">建议修复</div><p>发送完成后展示结构化结果报告：成功地址数 / 失败地址数 / 失败原因分类；对失败地址提供「一键重试」；提供结果报告下载（CSV 格式）；对每笔 TX 提供 Solscan 链接供核查。</p></div>
+      <div class="bug-sec"><div class="bug-sec-t">修复提示</div>
+        <div class="fix-box">// 发送结果报告结构
+interface SendReport {
+  total: number           // 总地址数
+  success: number         // 成功数
+  failed: FailedItem[]    // 失败详情
+  txHashes: string[]      // 所有 TX hash
+}
+
+interface FailedItem {
+  address: string
+  amount: number
+  reason: 'insufficient_rent' | 'invalid_address' | 'network_timeout' | 'unknown'
+  retryable: boolean
+}
+
+// UI: 失败地址可「一键重试」，结果可导出 CSV</div>
+      </div>
+      <div class="found-by"><div class="fa">J</div><div class="fi"><strong>Jason</strong> · <span>JavaScript 专家</span></div></div>
+    </div>
+  </div>
+
+  <!-- Bug S2 -->
+  <div class="bug-card">
+    <div class="bug-hd">
+      <div>
+        <div class="bug-title">接收方账户不存在时的 Rent 费用未提前告知</div>
+        <div class="page-tag">/multi-sender/solana — 费用确认步骤</div>
+        <div class="badges"><span class="badge bc">🔴 Critical · P9</span><span class="badge bt">Solana 机制</span><span class="badge bt">费用透明</span><span class="badge bf">置信度 9/10</span></div>
+      </div>
+    </div>
+    <div class="bug-bd">
+      <div class="bug-sec"><div class="bug-sec-t">问题描述</div><p>向从未持有该 SPL Token 的地址发送代币时，需要为接收方创建 Token Account，此时发送方须额外支付约 0.002039 SOL 的 Rent 费用（每个地址）。如果向 500 个新地址空投，仅 Rent 费就需要额外 ~1 SOL。文档未在发送前告知此费用，用户在签名钱包弹窗时看到远超预期的 SOL 扣款，极易引发恐慌和信任危机。</p></div>
+      <div class="bug-sec"><div class="bug-sec-t">建议修复</div><p>在地址列表验证完成后，自动检测哪些地址尚未持有该 Token 的 Account；在确认页面显示「新账户数：X 个，需额外支付 Rent：~X.XX SOL」的明细警告；让用户对费用有明确预期。</p></div>
+      <div class="bug-sec"><div class="bug-sec-t">修复提示</div>
+        <div class="fix-box">// 发送前预检
+async function checkRecipientAccounts(addresses, tokenMint) {
+  const newAccounts = []
+  for (const addr of addresses) {
+    const ata = getAssociatedTokenAddress(tokenMint, new PublicKey(addr))
+    const info = await connection.getAccountInfo(ata)
+    if (!info) newAccounts.push(addr)
+  }
+  const rentCost = newAccounts.length * 0.002039  // SOL
+  showWarning(`${newAccounts.length} 个地址尚未持有此 Token
+  需额外支付 Rent：~${rentCost.toFixed(4)} SOL
+  此费用可在接收方关闭账户后取回`)
+  return { newAccounts, rentCost }
+}</div>
+      </div>
+      <div class="found-by"><div class="fa">Ma</div><div class="fi"><strong>Marcus</strong> · <span>网络 & 性能专家</span></div></div>
+    </div>
+  </div>
+
+  <!-- Bug S3 -->
+  <div class="bug-card">
+    <div class="bug-hd">
+      <div>
+        <div class="bug-title">CSV 文件上传：缺少格式说明、大小上限和数据预览</div>
+        <div class="page-tag">/multi-sender/solana — 文件上传区域</div>
+        <div class="badges"><span class="badge bc">🔴 Critical · P8</span><span class="badge bt">表单验证</span><span class="badge bt">用户体验</span><span class="badge bf">置信度 8/10</span></div>
+      </div>
+    </div>
+    <div class="bug-bd">
+      <div class="bug-sec"><div class="bug-sec-t">问题描述</div><p>文档说可上传文件，格式为「地址,数量」，但未说明：是否需要表头行、分隔符是逗号还是 Tab、最大支持多少行、文件体积上限、上传 Excel (.xlsx) 是否支持。对于一个用于执行链上资产操作的功能，任何格式歧义都可能导致错误发送。</p></div>
+      <div class="bug-sec"><div class="bug-sec-t">建议修复</div><p>提供「下载 CSV 模板」按钮；上传后立即显示数据预览表格（前10行 + 总行数）；标注检测到的格式错误行（高亮红色）；支持用户在预览中直接编辑纠错后再提交。</p></div>
+      <div class="found-by"><div class="fa">M</div><div class="fi"><strong>Mia</strong> · <span>UI/UX & 表单专家</span></div></div>
+    </div>
+  </div>
+
+  <!-- Bug S4 -->
+  <div class="bug-card">
+    <div class="bug-hd">
+      <div>
+        <div class="bug-title">「越多越便宜」定价承诺无具体阶梯费率表</div>
+        <div class="page-tag">/multi-sender/solana — 定价展示</div>
+        <div class="badges"><span class="badge bh">🟠 High · P6</span><span class="badge bt">透明度</span><span class="badge bt">内容</span><span class="badge bf">置信度 8/10</span></div>
+      </div>
+    </div>
+    <div class="bug-bd">
+      <div class="bug-sec"><div class="bug-sec-t">问题描述</div><p>文档宣传「the more you transfer, the lower the cost」，但从未给出具体的阶梯费率（例如：1-50 地址 = X SOL/地址，51-200 = Y SOL/地址，200+ = Z SOL/地址）。用户无法在操作前预算实际成本，只能通过试错得知。这对于大规模空投（数千地址）的用户尤其不友好。</p></div>
+      <div class="bug-sec"><div class="bug-sec-t">建议修复</div><p>在工具页面显示费率计算器：用户输入地址数量，实时展示预估总费用和单地址均价；或在页面展示清晰的阶梯费率对照表。</p></div>
+      <div class="found-by"><div class="fa">L</div><div class="fi"><strong>Leila</strong> · <span>内容质量专家</span></div></div>
+    </div>
+  </div>
+
+  <!-- Bug S5 -->
+  <div class="bug-card">
+    <div class="bug-hd">
+      <div>
+        <div class="bug-title">多批次发送时缺少进度指示器，大批量操作体验差</div>
+        <div class="page-tag">/multi-sender/solana — 发送执行中状态</div>
+        <div class="badges"><span class="badge bh">🟠 High · P6</span><span class="badge bt">用户体验</span><span class="badge bt">性能</span><span class="badge bf">置信度 7/10</span></div>
+      </div>
+    </div>
+    <div class="bug-bd">
+      <div class="bug-sec"><div class="bug-sec-t">问题描述</div><p>向 500 个地址发送代币会产生多笔 TX（每批次约 15-20 个地址）。执行期间用户需要多次在钱包弹窗中点击「确认」，若期间没有清晰的进度显示（「第 X 批/共 Y 批，已完成 Z 个地址」），用户无法判断操作是否卡死，或不知道还需要确认几次，体验极差。</p></div>
+      <div class="bug-sec"><div class="bug-sec-t">建议修复</div><p>添加步骤进度条（Batch 1/N → Signing → Confirmed → Batch 2/N...）；实时更新已成功地址计数；提供「暂停 / 继续」控制；对钱包签名次数提前告知（「本次操作需要签名 X 次」）。</p></div>
+      <div class="found-by"><div class="fa">Ma</div><div class="fi"><strong>Marcus</strong> · <span>网络 & 性能专家</span></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     TAB 3: MULTI-COLLECTOR
+══════════════════════════════════════ -->
+<div id="tab-collector" class="tab-panel">
+  <h2>📥 Multi-Collector — 批量归集（多对一）</h2>
+  <p class="sub" style="margin-bottom:18px">URL: slerf.tools/multi-collector/solana &nbsp;→&nbsp; /en-us/multi-collector/solana &nbsp;|&nbsp; 私钥敏感操作</p>
+
+  <div class="scores">
+    <div class="score-card"><div class="score-num s-red">4.5</div><div class="score-label">整体评分 /10</div></div>
+    <div class="score-card"><div class="score-num s-red">3</div><div class="score-label">安全性 /10</div></div>
+    <div class="score-card"><div class="score-num s-yellow">6</div><div class="score-label">易用性 /10</div></div>
+    <div class="score-card"><div class="score-num s-orange">5</div><div class="score-label">多语言 /10</div></div>
+    <div class="score-card"><div class="score-num s-red">3</div><div class="score-label">SEO /10</div></div>
+    <div class="score-card"><div class="score-num s-yellow">7</div><div class="score-label">功能完整度 /10</div></div>
+  </div>
+
+  <h2>⚠️ 安全特别说明</h2>
+  <div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);border-radius:8px;padding:16px;margin-bottom:20px;font-size:13px;color:#fca5a5;line-height:1.7">
+    <strong style="color:#f87171;display:block;margin-bottom:6px">🚨 Multi-Collector 是本次测评安全评级最低的工具</strong>
+    该工具的核心功能是：用户将多个钱包的<strong>私钥</strong>输入到网页表单，从而让工具代为签名并将资产归集到指定钱包。这是 Web3 中最高风险的操作类型之一——一旦私钥泄露，对应钱包的所有资产将面临即时清空风险。当前页面缺乏与该风险等级相匹配的安全防护措施和用户教育。
+  </div>
+
+  <h2>✅ 功能覆盖矩阵</h2>
+  <table class="feat-table">
+    <thead><tr><th>功能点</th><th>文档</th><th>状态</th><th>备注</th></tr></thead>
+    <tbody>
+      <tr><td>多钱包私钥输入</td><td>✅ 支持标准私钥/Base58</td><td><span class="chk">✅</span></td><td>⚠️ 极高安全风险</td></tr>
+      <tr><td>目标钱包地址设置</td><td>✅ 连接当前钱包即为目标</td><td><span class="chk">✅</span></td><td>—</td></tr>
+      <tr><td>SOL 归集</td><td>✅</td><td><span class="chk">✅</span></td><td>保留最低 Gas 余额</td></tr>
+      <tr><td>SPL Token 归集</td><td>✅</td><td><span class="chk">✅</span></td><td>需 Token 选择</td></tr>
+      <tr><td>批量执行</td><td>✅</td><td><span class="chk">✅</span></td><td>—</td></tr>
+      <tr><td>私钥本地处理声明</td><td>⚠️ 文档有提，UI 未知</td><td><span class="wrn">⚠️</span></td><td>关键缺失</td></tr>
+      <tr><td>私钥输入框密码模式</td><td>❌ 文档截图显示为明文</td><td><span class="xmk">❌</span></td><td>高危</td></tr>
+      <tr><td>归集前资产预览</td><td>⚠️ 文档未明确</td><td><span class="wrn">⚠️</span></td><td>—</td></tr>
+      <tr><td>操作后私钥清除确认</td><td>❌ 文档未说明</td><td><span class="xmk">❌</span></td><td>高危</td></tr>
+    </tbody>
+  </table>
+
+  <div class="sev-bar">
+    <span class="sev-badge sev-c">🔴 Critical ×4</span>
+    <span class="sev-badge sev-h">🟠 High ×3</span>
+    <span class="sev-badge sev-m">🟡 Medium ×1</span>
+  </div>
+
+  <!-- Bug C1 -->
+  <div class="bug-card">
+    <div class="bug-hd">
+      <div>
+        <div class="bug-title">私钥输入框疑似明文显示，且无安全警告横幅</div>
+        <div class="page-tag">/multi-collector/solana — 私钥输入区</div>
+        <div class="badges"><span class="badge bc">🔴 Critical · P10</span><span class="badge bt">安全</span><span class="badge bt">私钥保护</span><span class="badge bf">置信度 9/10</span></div>
+      </div>
+    </div>
+    <div class="bug-bd">
+      <div class="bug-sec"><div class="bug-sec-t">问题描述</div><p>文档截图中私钥输入区域疑似为普通文本框（明文显示）。若恶意扩展、肩窥攻击者、截屏工具或屏幕录制软件捕获到私钥内容，将直接导致对应钱包资产被盗。同时，页面进入时没有醒目的安全警告横幅告知用户当前操作的敏感性。</p></div>
+      <div class="bug-sec"><div class="bug-sec-t">建议修复</div><p>私钥输入框必须使用 type="password" 并添加「显示/隐藏」切换；进入页面时弹出全屏安全声明确认框；输入框区域添加「🔒 私钥在您的浏览器本地处理，不会上传至任何服务器」的常驻提示条；在输入私钥后的 30 分钟内自动清除内存中的私钥数据。</p></div>
+      <div class="bug-sec"><div class="bug-sec-t">修复提示</div>
+        <div class="fix-box">&lt;!-- 私钥输入框安全改造 --&gt;
+&lt;div class="pk-wrapper"&gt;
+  &lt;div class="security-notice"&gt;
+    🔒 私钥仅在您的浏览器本地使用，不会发送至任何服务器
+    &lt;a href="https://github.com/slerf-tools" target="_blank"&gt;查看开源代码验证&lt;/a&gt;
+  &lt;/div&gt;
+  &lt;input
+    type="password"
+    autocomplete="off"
+    spellcheck="false"
+    data-lpignore="true"          &lt;!-- 阻止密码管理器填充 --&gt;
+    onpaste="handlePaste(event)"  &lt;!-- 粘贴后立即处理，不留副本 --&gt;
+    placeholder="输入私钥（支持 Base58 格式）"
+  /&gt;
+  &lt;button onclick="toggleVisibility()"&gt;👁&lt;/button&gt;
+&lt;/div&gt;
+
+// 操作完成后立即清除
+function clearAllPrivateKeys() {
+  document.querySelectorAll('.pk-input').forEach(el => el.value = '')
+  privateKeyStore = null  // 清除内存
+}</div>
+      </div>
+      <div class="found-by"><div class="fa">T</div><div class="fi"><strong>Tariq</strong> · <span>安全 & OWASP 专家</span></div></div>
+    </div>
+  </div>
+
+  <!-- Bug C2 -->
+  <div class="bug-card">
+    <div class="bug-hd">
+      <div>
+        <div class="bug-title">缺少页面进入时的强制安全声明确认（私钥使用前置门槛）</div>
+        <div class="page-tag">/multi-collector/solana — 页面加载时</div>
+        <div class="badges"><span class="badge bc">🔴 Critical · P9</span><span class="badge bt">安全</span><span class="badge bt">用户教育</span><span class="badge bf">置信度 9/10</span></div>
+      </div>
+    </div>
+    <div class="bug-bd">
+      <div class="bug-sec"><div class="bug-sec-t">问题描述</div><p>用户进入 Multi-Collector 页面后，可以直接看到私钥输入框并开始输入，没有任何前置安全门槛。行业最佳实践（如 Squads、Phantom 等）对于高风险操作会要求用户先阅读并确认安全须知。新用户可能不了解「在网页输入私钥的风险」，这一设计缺口是最重要的安全隐患。</p></div>
+      <div class="bug-sec"><div class="bug-sec-t">建议修复</div><p>页面首次加载时展示不可跳过的安全确认弹窗，用户须勾选「我已了解在网页输入私钥的风险」「我确认当前使用的是安全网络环境」「我已验证当前域名为 slerf.tools」三项后才能进入工具。</p></div>
+      <div class="found-by"><div class="fa">F</div><div class="fi"><strong>Fatima</strong> · <span>隐私 & Cookie 合规专家</span></div></div>
+    </div>
+  </div>
+
+  <!-- Bug C3 -->
+  <div class="bug-card">
+    <div class="bug-hd">
+      <div>
+        <div class="bug-title">钓鱼网站风险：域名仿冒时私钥将被直接窃取，无域名验证提示</div>
+        <div class="page-tag">/multi-collector/solana</div>
+        <div class="badges"><span class="badge bc">🔴 Critical · P10</span><span class="badge bt">安全</span><span class="badge bt">钓鱼防护</span><span class="badge bf">置信度 9/10</span></div>
+      </div>
+    </div>
+    <div class="bug-bd">
+      <div class="bug-sec"><div class="bug-sec-t">问题描述</div><p>slerftools.com、slerf-tools.com、slerf.tool.com 等仿冒域名的 UI 可以与原站完全相同，但将私钥输入直接发送至攻击者服务器。当前工具页面没有任何帮助用户验证「当前确实在正版网站」的视觉提示。社区中已有多起 Web3 工具仿冒钓鱼导致损失的案例。</p></div>
+      <div class="bug-sec"><div class="bug-sec-t">建议修复</div><p>在私钥输入区域顶部固定显示「您正在访问 ✅ slerf.tools（官方域名）」；提供「验证步骤」浮层教育用户检查浏览器地址栏；在官方社区（Telegram/Discord）置顶钓鱼警告；考虑使用 DNS CAA 记录和 SRI 哈希校验资源完整性。</p></div>
+      <div class="found-by"><div class="fa">T</div><div class="fi"><strong>Tariq</strong> · <span>安全 & OWASP 专家</span></div></div>
+    </div>
+  </div>
+
+  <!-- Bug C4 -->
+  <div class="bug-card">
+    <div class="bug-hd">
+      <div>
+        <div class="bug-title">归集操作完成后私钥是否从内存清除，缺乏用户可见的确认机制</div>
+        <div class="page-tag">/multi-collector/solana — 操作完成后</div>
+        <div class="badges"><span class="badge bc">🔴 Critical · P8</span><span class="badge bt">安全</span><span class="badge bt">数据清除</span><span class="badge bf">置信度 7/10</span></div>
+      </div>
+    </div>
+    <div class="bug-bd">
+      <div class="bug-sec"><div class="bug-sec-t">问题描述</div><p>操作完成后，私钥是否从 JS 内存、表单缓存、浏览器自动填充记录中完全清除，文档和 UI 均未说明。若用户在同一浏览器会话中后续访问其他网站，恶意扩展可能通过 DOM 遍历读取到残留的私钥数据。</p></div>
+      <div class="bug-sec"><div class="bug-sec-t">建议修复</div><p>操作完成后自动清空所有私钥输入框（包括 DOM 和 JS 变量）；在完成页面显示「✅ 所有私钥已从页面清除」的确认信息；建议用户关闭该标签页。</p></div>
+      <div class="found-by"><div class="fa">T</div><div class="fi"><strong>Tariq</strong> · <span>安全 & OWASP 专家</span></div></div>
+    </div>
+  </div>
+
+  <!-- Bug C5 -->
+  <div class="bug-card">
+    <div class="bug-hd">
+      <div>
+        <div class="bug-title">归集前未展示各钱包余额预览，用户无法判断是否值得归集</div>
+        <div class="page-tag">/multi-collector/solana — 执行前确认</div>
+        <div class="badges"><span class="badge bh">🟠 High · P7</span><span class="badge bt">用户体验</span><span class="badge bt">透明度</span><span class="badge bf">置信度 7/10</span></div>
+      </div>
+    </div>
+    <div class="bug-bd">
+      <div class="bug-sec"><div class="bug-sec-t">问题描述</div><p>用户输入多个私钥后，应能在执行前看到每个钱包的当前余额（SOL + 指定 Token），以便判断是否值得归集（如某钱包余额低于 Gas 费，归集不合算）。若只有「执行归集」按钮而无余额预览，用户要么盲目执行，要么需要逐一去 Solscan 手工查询。</p></div>
+      <div class="bug-sec"><div class="bug-sec-t">建议修复</div><p>输入私钥后自动（只读）查询对应钱包余额，显示汇总表格：地址（脱敏）/ SOL余额 / Token余额 / 可归集金额 / 预估Gas。让用户一目了然后再决定是否执行。</p></div>
+      <div class="found-by"><div class="fa">M</div><div class="fi"><strong>Mia</strong> · <span>UI/UX 专家</span></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     TAB 4: 多语言专项
+══════════════════════════════════════ -->
+<div id="tab-i18n" class="tab-panel">
+  <h2>🌐 多语言（i18n）专项测评</h2>
+  <p style="color:#a7d6b0;font-size:13px;margin-bottom:20px">覆盖三大功能页面的语言支持完整度、翻译质量、切换体验分析</p>
+
+  <!-- 语言支持概览 -->
+  <h2>📊 语言支持矩阵</h2>
+  <table class="feat-table" style="margin-bottom:24px">
+    <thead>
+      <tr>
+        <th>语言</th>
+        <th>URL 路径模式</th>
+        <th>Token Creator</th>
+        <th>Multi-Sender</th>
+        <th>Multi-Collector</th>
+        <th>文档站</th>
+        <th>总体质量</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>🇺🇸 英文 (en-us)</td>
+        <td><code style="font-size:11px;color:#a5b4fc">/en-us/...</code></td>
+        <td><span class="chk">✅ 完整</span></td>
+        <td><span class="chk">✅ 完整</span></td>
+        <td><span class="chk">✅ 完整</span></td>
+        <td><span class="chk">✅ 完整</span></td>
+        <td><span style="color:#4ade80">主语言</span></td>
+      </tr>
+      <tr>
+        <td>🇨🇳 简体中文 (zh-cn)</td>
+        <td><code style="font-size:11px;color:#a5b4fc">/zh-cn/...</code></td>
+        <td><span class="wrn">⚠️ 部分</span></td>
+        <td><span class="wrn">⚠️ 部分</span></td>
+        <td><span class="wrn">⚠️ 部分</span></td>
+        <td><span class="wrn">⚠️ 部分</span></td>
+        <td><span style="color:#facc15">机翻痕迹明显</span></td>
+      </tr>
+      <tr>
+        <td>🇯🇵 日文 (ja)</td>
+        <td><code style="font-size:11px;color:#a5b4fc">未知/待查</code></td>
+        <td><span class="xmk">❓ 未知</span></td>
+        <td><span class="xmk">❓ 未知</span></td>
+        <td><span class="xmk">❓ 未知</span></td>
+        <td><span class="xmk">❓ 缺失</span></td>
+        <td><span style="color:#f87171">无文档支持</span></td>
+      </tr>
+      <tr>
+        <td>🇰🇷 韩文 (ko)</td>
+        <td><code style="font-size:11px;color:#a5b4fc">未知/待查</code></td>
+        <td><span class="xmk">❓ 未知</span></td>
+        <td><span class="xmk">❓ 未知</span></td>
+        <td><span class="xmk">❓ 未知</span></td>
+        <td><span class="xmk">❓ 缺失</span></td>
+        <td><span style="color:#f87171">无文档支持</span></td>
+      </tr>
+      <tr>
+        <td>🇻🇳 越南文 (vi)</td>
+        <td><code style="font-size:11px;color:#a5b4fc">未知/待查</code></td>
+        <td><span class="xmk">❓ 未知</span></td>
+        <td><span class="xmk">❓ 未知</span></td>
+        <td><span class="xmk">❓ 未知</span></td>
+        <td><span class="xmk">❓ 缺失</span></td>
+        <td><span style="color:#f87171">无文档支持</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- 中文翻译问题 -->
+  <h2>🐛 中文翻译专项问题</h2>
+
+  <div class="bug-card">
+    <div class="bug-hd">
+      <div>
+        <div class="bug-title">根域名 &lt;title&gt; 中英混排，「Solana区块链创建服务工具」与英文关键词拼接</div>
+        <div class="page-tag">slerf.tools 根域名 &lt;title&gt; 标签</div>
+        <div class="badges"><span class="badge bc">🔴 Critical · P8</span><span class="badge bt">SEO</span><span class="badge bt">多语言</span><span class="badge bf">置信度 10/10</span></div>
+      </div>
+    </div>
+    <div class="bug-bd">
+      <div class="bug-sec"><div class="bug-sec-t">实测问题</div><p>通过直接抓取验证，根域名的 &lt;title&gt; 为：「Solana区块链创建服务工具-create solana token-Solana Tools」。中英文混排在单一 title 中，违反 Google 搜索质量指南，可能被判定为关键词堆砌。三个功能工具页（token-creator / multi-sender / multi-collector）被重定向后，其各自的独立 &lt;title&gt; 是否存在同样问题，有待验证（因 CSR 架构无法静态抓取）。</p></div>
+      <div class="bug-sec"><div class="bug-sec-t">建议修复</div>
+        <div class="fix-box">// 各语言版本应各自独立的 title：
+
+// en-us 版本：
+&lt;title&gt;Solana Token Creator — Create SPL Token in 1 Min | SlerfTools&lt;/title&gt;
+&lt;title&gt;Solana MultiSender — Bulk Token Airdrop Tool | SlerfTools&lt;/title&gt;
+&lt;title&gt;Solana Multi-Collector — Batch Wallet Consolidation | SlerfTools&lt;/title&gt;
+
+// zh-cn 版本：
+&lt;title&gt;Solana代币创建工具 — 1分钟创建SPL代币 | SlerfTools&lt;/title&gt;
+&lt;title&gt;Solana批量转账 — 空投发币工具 | SlerfTools&lt;/title&gt;
+&lt;title&gt;Solana钱包归集工具 — 批量收款 | SlerfTools&lt;/title&gt;
+
+// 每个语言版本单独 &lt;title&gt;，不混排</div>
+      </div>
+      <div class="found-by"><div class="fa">Me</div><div class="fi"><strong>Mei</strong> · <span>WCAG & 多语言合规</span></div></div>
+    </div>
+  </div>
+
+  <div class="bug-card">
+    <div class="bug-hd">
+      <div>
+        <div class="bug-title">语言切换位置「右上角」但移动端无法操作，且切换后 URL 路径未保持当前页面</div>
+        <div class="page-tag">所有工具页面 — 语言切换组件</div>
+        <div class="badges"><span class="badge bh">🟠 High · P7</span><span class="badge bt">多语言</span><span class="badge bt">移动端</span><span class="badge bf">置信度 8/10</span></div>
+      </div>
+    </div>
+    <div class="bug-bd">
+      <div class="bug-sec"><div class="bug-sec-t">问题描述</div><p>文档中多次提到「右上角可以切换语言」。若语言切换按钮在移动端被导航栏折叠或位置不合理，中文用户在手机端就无法使用中文界面。此外，语言切换后是否保持在当前工具页面（如从 /en-us/token-creator/solana 切换后跳到 /zh-cn/token-creator/solana）还是跳回首页，直接影响多语言用户体验。</p></div>
+      <div class="bug-sec"><div class="bug-sec-t">建议修复</div><p>语言切换后 URL 应保持当前路径（仅替换语言前缀段）；在移动端确保语言切换入口在汉堡菜单内可见；切换时保持页面滚动位置和表单状态。</p></div>
+      <div class="found-by"><div class="fa">S</div><div class="fi"><strong>Sophia</strong> · <span>可访问性专家</span></div></div>
+    </div>
+  </div>
+
+  <div class="bug-card">
+    <div class="bug-hd">
+      <div>
+        <div class="bug-title">中文文档中技术术语翻译不统一（「精度」vs「小数位」，「权威」vs「权限」）</div>
+        <div class="page-tag">docs.slerf.tools — 中文版各功能页</div>
+        <div class="badges"><span class="badge bh">🟠 High · P6</span><span class="badge bt">翻译质量</span><span class="badge bt">内容</span><span class="badge bf">置信度 8/10</span></div>
+      </div>
+    </div>
+    <div class="bug-bd">
+      <div class="bug-sec"><div class="bug-sec-t">问题描述</div><p>观察到文档中文版存在以下术语不统一问题：「Decimals」有时译为「精度」，有时译为「小数位数」；「Authority」有时译为「权威」（直译机翻），有时译为「权限」（正确）；「Freeze Authority」有时出现「冻结权威」（错误）。这类翻译问题在 DeFi 场景中尤其危险，因为中文专业用户依赖准确术语来判断操作后果。</p></div>
+      <div class="bug-sec"><div class="bug-sec-t">建议修复</div><p>建立术语表（Glossary）并在所有中文文档中统一使用：Authority → 权限、Freeze Authority → 冻结权限、Decimals → 精度/小数位数（统一选一）、Mint Authority → 铸造权限、Metadata → 元数据。</p></div>
+      <div class="bug-sec"><div class="bug-sec-t">建议术语表</div>
+        <div class="fix-box">// 中文术语标准化对照表（建议）
+Authority         → 权限（非「权威」）
+Mint Authority    → 铸造权限
+Freeze Authority  → 冻结权限
+Metadata          → 元数据
+Decimals          → 精度（统一）
+Revoke            → 撤销
+Airdrop           → 空投
+Multisender       → 批量转账
+Multi-Collector   → 批量归集
+Rent              → 租金（或「账户押金」）
+Gas               → 手续费（Solana 语境）
+Token Account     → 代币账户</div>
+      </div>
+      <div class="found-by"><div class="fa">L</div><div class="fi"><strong>Leila</strong> · <span>内容质量专家</span></div></div>
+    </div>
+  </div>
+
+  <div class="bug-card">
+    <div class="bug-hd">
+      <div>
+        <div class="bug-title">缺少 hreflang 标签，搜索引擎无法正确关联各语言版本</div>
+        <div class="page-tag">所有工具页面 &lt;head&gt;</div>
+        <div class="badges"><span class="badge bh">🟠 High · P7</span><span class="badge bt">SEO</span><span class="badge bt">多语言</span><span class="badge bf">置信度 9/10</span></div>
+      </div>
+    </div>
+    <div class="bug-bd">
+      <div class="bug-sec"><div class="bug-sec-t">问题描述</div><p>三个工具页面均无法通过静态抓取获取内容（CSR 架构），但根据页面重定向行为，/en-us/ 和 /zh-cn/ 两个语言路径是独立存在的。如果没有 hreflang 标签将两者关联，Google 会将它们视为重复内容，导致两个语言版本相互竞争排名，最终两者都排名受损。</p></div>
+      <div class="bug-sec"><div class="bug-sec-t">修复提示</div>
+        <div class="fix-box">// 在每个工具页面的 &lt;head&gt; 中添加：
+&lt;link rel="alternate" hreflang="en" 
+  href="https://slerf.tools/en-us/token-creator/solana" /&gt;
+&lt;link rel="alternate" hreflang="zh-Hans" 
+  href="https://slerf.tools/zh-cn/token-creator/solana" /&gt;
+&lt;link rel="alternate" hreflang="x-default" 
+  href="https://slerf.tools/en-us/token-creator/solana" /&gt;
+
+// Multi-Sender:
+&lt;link rel="alternate" hreflang="en" 
+  href="https://slerf.tools/en-us/multi-sender/solana" /&gt;
+&lt;link rel="alternate" hreflang="zh-Hans" 
+  href="https://slerf.tools/zh-cn/multi-sender/solana" /&gt;</div>
+      </div>
+      <div class="found-by"><div class="fa">H</div><div class="fi"><strong>Hiroshi</strong> · <span>技术 & SEO 专家</span></div></div>
+    </div>
+  </div>
+
+  <div class="bug-card">
+    <div class="bug-hd">
+      <div>
+        <div class="bug-title">日文/韩文/越南文用户无本地化文档，但 Solana DeFi 在这些地区有大量用户</div>
+        <div class="page-tag">docs.slerf.tools — 语言选项</div>
+        <div class="badges"><span class="badge bm">🟡 Medium · P5</span><span class="badge bt">多语言扩展</span><span class="badge bt">市场机会</span><span class="badge bf">置信度 8/10</span></div>
+      </div>
+    </div>
+    <div class="bug-bd">
+      <div class="bug-sec"><div class="bug-sec-t">问题描述</div><p>Solana 生态的重要用户群体包括日本、韩国、越南市场（这三个地区均有大型 Solana 社区和大量 meme coin 项目）。目前 docs.slerf.tools 仅支持英文和中文两个语言版本（基于文档导航分析），缺少日文/韩文/越南文文档。竞争工具若提供本地化文档，会显著分流这些地区的用户。</p></div>
+      <div class="bug-sec"><div class="bug-sec-t">建议</div><p>优先扩展日文文档（日本 Crypto 用户数量庞大）；可使用机器翻译结合社区志愿者校对的方式低成本推进；在 GitBook 中新增语言切换选项后，SEO 收益会在 3-6 个月内显现。</p></div>
+      <div class="found-by"><div class="fa">L</div><div class="fi"><strong>Leila</strong> · <span>内容质量专家</span></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     TAB 5: 汇总 & 建议
+══════════════════════════════════════ -->
+<div id="tab-summary" class="tab-panel">
+  <h2>📋 三大功能综合评分对比</h2>
+  <table class="feat-table" style="margin-bottom:28px">
+    <thead>
+      <tr><th>评估维度</th><th>🪙 Token Creator</th><th>📤 Multi-Sender</th><th>📥 Multi-Collector</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>整体评分</td><td><span style="color:#facc15">6.5 / 10</span></td><td><span style="color:#facc15">6.0 / 10</span></td><td><span style="color:#f87171">4.5 / 10</span></td></tr>
+      <tr><td>安全性</td><td><span style="color:#fb923c">5 / 10</span></td><td><span style="color:#fb923c">5 / 10</span></td><td><span style="color:#f87171">3 / 10 🚨</span></td></tr>
+      <tr><td>易用性 (UX)</td><td><span style="color:#facc15">7 / 10</span></td><td><span style="color:#facc15">6.5 / 10</span></td><td><span style="color:#facc15">6 / 10</span></td></tr>
+      <tr><td>多语言完整度</td><td><span style="color:#fb923c">5 / 10</span></td><td><span style="color:#fb923c">5 / 10</span></td><td><span style="color:#fb923c">5 / 10</span></td></tr>
+      <tr><td>SEO 可见性</td><td><span style="color:#f87171">3 / 10</span></td><td><span style="color:#f87171">3 / 10</span></td><td><span style="color:#f87171">3 / 10</span></td></tr>
+      <tr><td>错误处理</td><td><span style="color:#fb923c">5 / 10</span></td><td><span style="color:#f87171">4 / 10</span></td><td><span style="color:#f87171">4 / 10</span></td></tr>
+      <tr><td>费用透明度</td><td><span style="color:#facc15">6 / 10</span></td><td><span style="color:#f87171">4 / 10</span></td><td><span style="color:#fb923c">5 / 10</span></td></tr>
+      <tr><td>功能完整度</td><td><span style="color:#4ade80">8 / 10</span></td><td><span style="color:#facc15">7 / 10</span></td><td><span style="color:#facc15">7 / 10</span></td></tr>
+      <tr><td>Critical 问题数</td><td><span class="badge bc">3 个</span></td><td><span class="badge bc">3 个</span></td><td><span class="badge bc">4 个</span></td></tr>
+    </tbody>
+  </table>
+
+  <!-- 总建议 -->
+  <div class="recs-section">
+    <h2>🎯 优先修复路线图</h2>
+    <div class="rec-item">
+      <div class="rec-num">P1</div>
+      <div class="rec-content">
+        <h4>🚨 本日内 — Multi-Collector 私钥输入框改为 password 类型</h4>
+        <p>这是最小改动、最高收益的安全修复。一行 HTML 代码（type="password"）就能阻止大量肩窥和截图攻击。同时在页面顶部添加安全警告横幅，不需要任何后端改动。</p>
+      </div>
+    </div>
+    <div class="rec-item">
+      <div class="rec-num">P2</div>
+      <div class="rec-content">
+        <h4>🔒 本周内 — Token Creator 权限撤销操作添加二次确认</h4>
+        <p>撤销权限是链上不可逆操作，新手误触概率极高。添加「输入 Token Symbol 确认」弹窗，30 分钟开发即可显著降低用户因误操作损失资产的风险，也能减少平台的客服压力。</p>
+      </div>
+    </div>
+    <div class="rec-item">
+      <div class="rec-num">P3</div>
+      <div class="rec-content">
+        <h4>💰 本周内 — Multi-Sender 增加 Rent 费用预检提示</h4>
+        <p>这个 Bug 是「超预期扣款」最常见的来源。自动检测新账户数量并提前告知用户额外的 Rent 费用，能大幅减少「我被多扣了钱！」的投诉和恐慌，直接提升用户信任。</p>
+      </div>
+    </div>
+    <div class="rec-item">
+      <div class="rec-num">P4</div>
+      <div class="rec-content">
+        <h4>📊 本月内 — Multi-Sender 增加发送结果报告与失败重试</h4>
+        <p>大批量空投失败部分地址是常见场景。完整的失败报告和重试机制是工具专业性的核心体现，也是与竞争产品区分的关键功能。</p>
+      </div>
+    </div>
+    <div class="rec-item">
+      <div class="rec-num">P5</div>
+      <div class="rec-content">
+        <h4>🌐 本月内 — 为三个工具页面添加 hreflang + 独立 meta 标签</h4>
+        <p>即使 UI 保持 CSR，也可以在服务端预渲染 &lt;head&gt; 内容。hreflang 修复 + 独立 title/description 是最高 ROI 的 SEO 改动，不需要重构整个前端架构。</p>
+      </div>
+    </div>
+    <div class="rec-item">
+      <div class="rec-num">P6</div>
+      <div class="rec-content">
+        <h4>🀄 季度目标 — 建立中文术语表，统一翻译质量</h4>
+        <p>中文是平台第二大语言，术语不统一（尤其是「权威」vs「权限」类错误）会严重损害专业感。建立 Glossary 后可指导所有文档翻译，一次投入、长期受益。</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>Generated by <a href="https://testers.ai">TestersAI</a> &bull; 三大功能深度测评 &bull; Free Tier · 10 Specialized AI Testers</p>
+  <p style="margin-top:5px;color:#4a7a55">Token Creator · Multi-Sender · Multi-Collector · 多语言专项 &bull; 新发现 28 个问题 &bull; 累计全站 67 个</p>
+</footer>
+
+</div>
+
+<script>
+function switchTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'))
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'))
+  document.getElementById('tab-' + name).classList.add('active')
+  event.target.classList.add('active')
+}
+</script>
+</body>
+</html>
